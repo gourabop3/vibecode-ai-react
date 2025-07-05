@@ -8,3 +8,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+enum MessageType {
+  RESULT
+  ERROR
+}
+
+model Message {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  role     MessageRole
+  content  String
+  type     MessageType
+  fragment Fragment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Fragment {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  messageId  String  @unique @db.ObjectId
+  message    Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  sandboxUrl String
+  title      String
+  files      Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,30 @@
+import * as z from "zod";
+
+import { prisma } from "@/lib/db";
+import { inngest } from "@/inngest/client";
+import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+
+export const messageRouter = createTRPCRouter({
+    create : baseProcedure
+    .input(z.object({
+        value : z.string().min(1, "Prompt cannot be empty"),
+    }))
+    .mutation(async({input})=>{
+        const message  = await prisma.message.create({
+            data : {
+                content : input.value,
+                role : "USER",
+                type : "RESULT"
+            }
+        });
+
+        await inngest.send({
+            name : "code-agent/run",
+            data : {
+                value: input.value,
+            }
+        })
+
+        return message
+    })
+})
