@@ -1,17 +1,23 @@
-import { use, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { MessageCard } from "./message-card";
 import { MessageForm } from "./message-form";
+import { Fragment } from "@/generated/prisma";
+import { MessageLoading } from "./message-loading";
 
 
 interface Props {
   projectId: string;
+  activeFragment: Fragment | null;
+  setActiveFragment: (fragment: Fragment | null) => void;
 }
 
 export const MessagesContainer = ({
-  projectId
+  projectId,
+  activeFragment,
+  setActiveFragment
 }: Props) => {
   
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -21,6 +27,7 @@ export const MessagesContainer = ({
   useEffect(()=>{
     const lastAssistantMessage = messages.findLast(message => message.role === "ASSISTANT");
     if (lastAssistantMessage) {
+      setActiveFragment(lastAssistantMessage.fragment);
     }
 
   }, [messages]);
@@ -29,7 +36,11 @@ export const MessagesContainer = ({
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages.length])
+  }, [messages.length]);
+
+  const lastMessage = messages[messages.length - 1];
+  const isLastMessageFromUser = lastMessage.role==="USER";
+
   
   return (
     <div className="flex flex-col min-h-0 h-full">
@@ -42,11 +53,12 @@ export const MessagesContainer = ({
               role={message.role}
               fragment={message.fragment}
               createdAt={message.createdAt}
-              isActive={false}
-              onFragmentClick={() => {}}
+              isActive={activeFragment?.id === message?.fragment?.id}
+              onFragmentClick={() => setActiveFragment(message.fragment)}
               type={message.type}
             />
           ))}
+          {isLastMessageFromUser && <MessageLoading/>}
           <div ref={bottomRef}/>
         </div>
       </div>
