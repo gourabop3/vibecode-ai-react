@@ -12,7 +12,7 @@ export default function Home() {
   const [value, setValue] = useState("");
 
   const trpc = useTRPC();
-  const createMessage = useMutation(trpc.messages.create.mutationOptions({
+  const createProject = useMutation(trpc.projects.create.mutationOptions({
     onSuccess : ()=> {
       toast.success("Background job invoked successfully");
     }
@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <div>
         <Input value={value} onChange={(e)=>setValue(e.target.value)} />
-        <Button disabled={createMessage.isPending} onClick={()=>createMessage.mutate({ value })}  >
+        <Button disabled={createProject.isPending} onClick={()=>createProject.mutate({ value })}  >
           Invoke
         </Button>
     </div>
