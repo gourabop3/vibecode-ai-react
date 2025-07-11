@@ -9,6 +9,7 @@ import {
 import { MessagesContainer } from "../components/messages-container";
 import { Fragment } from "@/generated/prisma";
 import { Header } from "../components/header";
+import { FragmentWeb } from "../components/fragment-web";
 
 interface ProjectViewProps {
   projectId: string;
@@ -44,7 +45,13 @@ export const ProjectView = ({
           defaultSize={65}
           minSize={50}
         >
-          PEREVIEW
+          {
+            !!activeFragment && (
+              <FragmentWeb
+                fragment={activeFragment}
+              />
+            )
+          }
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
