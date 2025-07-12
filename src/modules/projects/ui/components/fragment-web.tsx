@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Fragment } from "@/generated/prisma"
 import { Button } from "@/components/ui/button"
 import { ExternalLinkIcon, RefreshCcwIcon } from "lucide-react"
+import { Hint } from "@/components/hint"
 
 interface Props {
   fragment : Fragment
@@ -43,18 +44,20 @@ export const FragmentWeb = ({
         >
           <span className="truncate text-foreground">{fragment.sandboxUrl}</span>
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!fragment.sandboxUrl}
-          onClick={() => {
-            if (fragment.sandboxUrl) {
-              window.open(fragment.sandboxUrl, "_blank");
-            }
-          }}
-        >
-          <ExternalLinkIcon/>
-        </Button>
+        <Hint content="Open in new tab" align="start">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!fragment.sandboxUrl}
+            onClick={() => {
+              if (fragment.sandboxUrl) {
+                window.open(fragment.sandboxUrl, "_blank");
+              }
+            }}
+          >
+            <ExternalLinkIcon/>
+          </Button>
+        </Hint>
       </div>
       <iframe
         key={fragmentKey}
