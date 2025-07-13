@@ -3,6 +3,7 @@
 import * as z from "zod";
 import { useState } from "react";
 import { useTRPC } from "@/trpc/client";
+import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -31,6 +32,7 @@ export const ProjectForm = () => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const clerk = useClerk();
   const [isFocused, setIsFocused] = useState(false);
   const [showUsage, setShowUsage] = useState(false);
 
@@ -40,6 +42,10 @@ export const ProjectForm = () => {
       router.push(`/project/${data.id}`);
     },
     onError : (error) => {
+      if (error.data?.code === "UNAUTHORIZED") {
+        clerk.openSignIn();
+        return;
+      }
       toast.error(error.message || "Failed to create message");
     }
   }));

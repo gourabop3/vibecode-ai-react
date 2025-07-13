@@ -1,5 +1,6 @@
 "use client";
 ;
+import Link from "next/link";
 import { Suspense, useState } from "react";
 
 import {
@@ -19,8 +20,8 @@ import { Header } from "../components/header";
 import { FragmentWeb } from "../components/fragment-web";
 import { CodeIcon, CrownIcon, EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { FileExplorer } from "@/components/file-explorer";
+import { UserControl } from "@/components/user-control";
 
 interface ProjectViewProps {
   projectId: string;
@@ -82,6 +83,7 @@ export const ProjectView = ({
                     Upgrade
                   </Link>
                 </Button>
+                <UserControl/>
               </div>
             </div>
             <TabsContent value="preview">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { useTRPC } from "@/trpc/client";
+import { useClerk } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
@@ -12,12 +13,13 @@ import { Button } from "@/components/ui/button";
 export const ProjectList = () => {
   
   const trpc = useTRPC();
+  const { user } = useClerk();
   const { data : projects, isPending } = useQuery(trpc.projects.getMany.queryOptions());
 
   return (
     <div className="w-full bg-white dark:bg-sidebar rounded-xl p-8 border flex flex-col gap-y-6 sm:gap-y-4">
       <h2 className="text-2xl font-bold">
-        Your Vibes
+        {user?.fullName ?? "Your" }&apos; Vibes
       </h2>
       {
         isPending ? (
