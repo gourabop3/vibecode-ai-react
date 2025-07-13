@@ -1,7 +1,9 @@
+"use client";
 
 import * as z from "zod";
 import { useState } from "react";
 import { useTRPC } from "@/trpc/client";
+import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -16,27 +18,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import TextareaAutosize from 'react-textarea-autosize';
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, SquareIcon } from "lucide-react";
+import { PROJECT_TEMPLATES } from "@/lib/constants";
+import { TemplateCard } from "./template-card";
 
-
-interface Props {
-  projectId: string;
-}
 
 const formSchema = z.object({
   value : z.string().min(1, "Prompt cannot be empty").max(1000, "Prompt cannot be longer than 1000 characters"),
 })
 
-export const MessageForm = ({ projectId } : Props) => {
+export const ProjectForm = () => {
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [isFocused, setIsFocused] = useState(false);
   const [showUsage, setShowUsage] = useState(false);
 
-  const createMessage = useMutation(trpc.messages.create.mutationOptions({
-    onSuccess : () => {
-      form.reset();
-      queryClient.invalidateQueries(trpc.messages.getMany.queryOptions({ projectId }));
+  const createProject = useMutation(trpc.projects.create.mutationOptions({
+    onSuccess : (data) => {
+      queryClient.invalidateQueries(trpc.projects.getMany.queryOptions());
+      router.push(`/project/${data.id}`);
     },
     onError : (error) => {
       toast.error(error.message || "Failed to create message");
@@ -51,18 +52,17 @@ export const MessageForm = ({ projectId } : Props) => {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    await createMessage.mutateAsync({
+    await createProject.mutateAsync({
       value: data.value,
-      projectId: projectId
     });
   }
 
-  const isPending = createMessage.isPending;
+  const isPending = createProject.isPending;
   const isDisabled = isPending || !form.formState.isValid;
 
 
   return (
-    <Form {...form}>
+    <Form {...form} >
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
@@ -117,6 +117,25 @@ export const MessageForm = ({ projectId } : Props) => {
           </Button>
         </div>
       </form>
+      <div className="grid grid-cols-2 md:grid-cols-3 mt-12 gap-6">
+        {
+          PROJECT_TEMPLATES.map((template)=>(
+            <button
+              key={template.title}
+              className="w-full"
+              onClick={() => {
+                form.setValue("value", template.prompt)
+                form.handleSubmit(onSubmit)();
+              }}
+            >
+              <TemplateCard
+                title={template.title}
+                imageUrl={template.image}
+              />
+            </button>
+          ))
+        }
+      </div>
     </Form>
   )
 }

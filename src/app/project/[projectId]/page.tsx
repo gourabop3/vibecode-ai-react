@@ -17,7 +17,7 @@ const Page = async({ params } : Props) => {
     projectId
   }));
   void queryClient.prefetchQuery(trpc.projects.getOne.queryOptions({
-    projectId
+    projectId,
   }));
 
   return (

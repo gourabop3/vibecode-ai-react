@@ -22,7 +22,9 @@ export const MessagesContainer = ({
   
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const trpc = useTRPC();
-  const { data : messages } = useSuspenseQuery(trpc.messages.getMany.queryOptions({projectId}));
+  const { data : messages } = useSuspenseQuery(trpc.messages.getMany.queryOptions({projectId}, {
+    refetchInterval : 5000
+  }));
 
   useEffect(()=>{
     const lastAssistantMessage = messages.findLast(message => message.role === "ASSISTANT");
