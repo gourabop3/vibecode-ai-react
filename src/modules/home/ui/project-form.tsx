@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useTRPC } from "@/trpc/client";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   Form,
@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, SquareIcon } from "lucide-react";
 import { PROJECT_TEMPLATES } from "@/lib/constants";
 import { TemplateCard } from "./template-card";
+import { Usage } from "@/modules/projects/ui/components/usage";
 
 
 const formSchema = z.object({
@@ -34,16 +35,21 @@ export const ProjectForm = () => {
   const router = useRouter();
   const clerk = useClerk();
   const [isFocused, setIsFocused] = useState(false);
-  const [showUsage, setShowUsage] = useState(false);
 
+  const { data : usage } = useQuery(trpc.usage.status.queryOptions());
   const createProject = useMutation(trpc.projects.create.mutationOptions({
     onSuccess : (data) => {
       queryClient.invalidateQueries(trpc.projects.getMany.queryOptions());
+      queryClient.invalidateQueries(trpc.usage.status.queryOptions());
       router.push(`/project/${data.id}`);
     },
     onError : (error) => {
       if (error.data?.code === "UNAUTHORIZED") {
         clerk.openSignIn();
+        return;
+      }
+      if (error.data?.code === "TOO_MANY_REQUESTS") {
+        router.push("/pricing");
         return;
       }
       toast.error(error.message || "Failed to create message");
@@ -65,10 +71,14 @@ export const ProjectForm = () => {
 
   const isPending = createProject.isPending;
   const isDisabled = isPending || !form.formState.isValid;
+  const showUsage = !!usage;
 
 
   return (
     <Form {...form} >
+      {
+        showUsage && <Usage points={usage.remainingPoints} msBeforeNext={usage.msBeforeNext} />
+      }
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(

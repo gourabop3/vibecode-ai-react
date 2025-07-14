@@ -5,6 +5,7 @@ import { inngest } from "@/inngest/client";
 import {protectedProcedure, createTRPCRouter } from "@/trpc/init";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
+import { consumeUsage } from "@/lib/usage";
 
 export const projectRouter = createTRPCRouter({
     getOne : protectedProcedure
@@ -44,6 +45,22 @@ export const projectRouter = createTRPCRouter({
         value : z.string().min(1, "Prompt cannot be empty").max(1000, "Prompt cannot be longer than 1000 characters")
     }))
     .mutation(async({input, ctx})=>{
+        try {
+            await consumeUsage();
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new TRPCError({
+                    code : "BAD_REQUEST",
+                    message : error.message
+                });
+            } 
+            else {
+                throw new TRPCError({
+                    code : "TOO_MANY_REQUESTS",
+                    message : "You have exceeded your usage limit. Please upgrade your plan to continue using the service."
+                });
+            }  
+        }
 
         const project = await prisma.project.create({
             data : {

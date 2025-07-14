@@ -2,7 +2,8 @@
 import * as z from "zod";
 import { useState } from "react";
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   Form,
@@ -16,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import TextareaAutosize from 'react-textarea-autosize';
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, SquareIcon } from "lucide-react";
+import { Usage } from "./usage";
 
 
 interface Props {
@@ -29,17 +31,23 @@ const formSchema = z.object({
 export const MessageForm = ({ projectId } : Props) => {
 
   const trpc = useTRPC();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [isFocused, setIsFocused] = useState(false);
-  const [showUsage, setShowUsage] = useState(false);
-
+  
+  const {data : usage} = useQuery(trpc.usage.status.queryOptions()); 
+  
   const createMessage = useMutation(trpc.messages.create.mutationOptions({
     onSuccess : () => {
       form.reset();
       queryClient.invalidateQueries(trpc.messages.getMany.queryOptions({ projectId }));
+      queryClient.invalidateQueries(trpc.usage.status.queryOptions());
     },
     onError : (error) => {
       toast.error(error.message || "Failed to create message");
+      if (error.data?.code === "TOO_MANY_REQUESTS") { 
+        router.push("/pricing");
+      }
     }
   }));
 
@@ -59,10 +67,14 @@ export const MessageForm = ({ projectId } : Props) => {
 
   const isPending = createMessage.isPending;
   const isDisabled = isPending || !form.formState.isValid;
+  const showUsage = !!usage
 
 
   return (
     <Form {...form}>
+      {
+        showUsage && <Usage points={usage.remainingPoints} msBeforeNext={usage.msBeforeNext} />
+      }
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
