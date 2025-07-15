@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { FileExplorer } from "@/components/file-explorer";
 import { UserControl } from "@/components/user-control";
 import { useAuth } from "@clerk/nextjs";
+import { Loader } from "@/components/ui/loader";
 
 interface ProjectViewProps {
   projectId: string;
@@ -47,10 +48,10 @@ export const ProjectView = ({
           minSize={20}
           className="flex flex-col min-h-0"
         >
-          <Suspense fallback={<div>Loading header...</div>}>
+          <Suspense fallback={<Loader/>}>
             <Header projectId={projectId}/>
           </Suspense>
-          <Suspense fallback={<div>Loading messages...</div>}>
+          <Suspense fallback={<Loader/>}>
             <MessagesContainer
               projectId={projectId}
               activeFragment={activeFragment}

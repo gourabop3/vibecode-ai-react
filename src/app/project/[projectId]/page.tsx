@@ -1,3 +1,4 @@
+import { Loader } from "@/components/ui/loader";
 import { ProjectView } from "@/modules/projects/ui/views/project-view";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -22,7 +23,7 @@ const Page = async({ params } : Props) => {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)} >
-      <Suspense fallback={<>Loading</>}>
+      <Suspense fallback={<Loader/>}>
         <ProjectView projectId={projectId} />
       </Suspense>
     </HydrationBoundary>
