@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: "Vibe | AI-Powered Website Creation",
     description: "An AI platform that creates Next.js websites using intelligent agents, automating development and design.",
   },
-  metadataBase: new URL("https://vibe-ai-smoky.vercel.app"),
+  metadataBase: new URL("https://vibecode-ai.vercel.app"),
 };
 
 export default function RootLayout({
