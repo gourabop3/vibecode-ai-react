@@ -34,3 +34,40 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Local Setup & Troubleshooting
+
+### 1. Environment Variables
+- Create a `.env` file in the project root with:
+  ```
+  DATABASE_URL="your-mongodb-connection-string"
+  ```
+  Replace with your actual MongoDB URI (e.g., from MongoDB Atlas).
+
+### 2. Install Dependencies
+```
+npm install
+```
+
+### 3. Generate Prisma Client
+```
+npx prisma generate
+```
+
+### 4. Push Prisma Schema (for development)
+```
+npx prisma db push
+```
+
+### 5. Start the Development Server
+```
+npm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 6. Troubleshooting
+- **Port 3000 not working?** Ensure `npm run dev` is running and no errors are shown in the terminal.
+- **Database errors?** Double-check your `DATABASE_URL` in `.env` and that your MongoDB is accessible.
+- **Sandbox/Preview not working?** Sandboxes are temporary. If expired, re-run the preview or use local setup.
+- **Still stuck?** Check logs for errors and share them for help.
