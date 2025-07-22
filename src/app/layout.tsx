@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
 import { ClerkProvider } from "@clerk/nextjs";
 
+// Trigger deployment - restored to working commit 3bccf4b
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
