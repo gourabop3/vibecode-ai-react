@@ -25,7 +25,7 @@ export const codeAgentFunction = inngest.createFunction(
     async ({ event, step }) => {
 
         const sandboxId = await step.run("get-sandbox-id", async () => {
-            const sandbox = await Sandbox.create(); // Use default template for compatibility
+            const sandbox = await Sandbox.create("vibegourab"); // Use default template for compatibility
             return sandbox.sandboxId
         });
 
