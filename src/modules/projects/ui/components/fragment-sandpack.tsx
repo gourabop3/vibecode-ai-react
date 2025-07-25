@@ -240,18 +240,12 @@ export default App;`);
         "react-scripts": "5.0.1",
         uuid: "^9.0.0",
         clsx: "^2.0.0",
-        "date-fns": "^2.30.0",
-        tailwindcss: "^3.4.0",
-        autoprefixer: "^10.4.16",
-        postcss: "^8.4.31"
-      },
-      devDependencies: {
-        "@craco/craco": "^7.1.0"
+        "date-fns": "^2.30.0"
       },
       scripts: {
-        start: "craco start",
-        build: "craco build",
-        test: "craco test",
+        start: "react-scripts start",
+        build: "react-scripts build",
+        test: "react-scripts test",
         eject: "react-scripts eject"
       },
       eslintConfig: {
@@ -276,12 +270,8 @@ root.render(
   </React.StrictMode>
 );`;
 
-    // index.css with proper Tailwind imports
-    const indexCss = `@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Modern CSS Reset */
+    // index.css with reliable base styles
+    const indexCss = `/* Modern CSS Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -311,7 +301,7 @@ code {
     monospace;
 }`;
 
-        // public/index.html
+        // public/index.html with reliable Tailwind CDN
     const indexHtml = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -321,6 +311,14 @@ code {
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="React app created with AI" />
     <title>React App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {}
+        }
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -404,32 +402,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
     newSandpackFiles["/src/index.js"] = indexJs;
     newSandpackFiles["/src/index.css"] = indexCss;
     newSandpackFiles["/public/index.html"] = indexHtml;
-    newSandpackFiles["/tailwind.config.js"] = tailwindConfig;
-    
-    // postcss.config.js
-    const postcssConfig = `module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}`;
 
-    // craco.config.js
-    const cracoConfig = `const path = require('path');
-
-module.exports = {
-  style: {
-    postcss: {
-      plugins: [
-        require('tailwindcss'),
-        require('autoprefixer'),
-      ],
-    },
-  },
-}`;
-
-    newSandpackFiles["/postcss.config.js"] = postcssConfig;
-    newSandpackFiles["/craco.config.js"] = cracoConfig;
     newSandpackFiles["/.gitignore"] = gitignore;
     newSandpackFiles["/README.md"] = readme;
     

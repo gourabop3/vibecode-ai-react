@@ -221,28 +221,67 @@ MODERN LAYOUT PATTERNS - Always use these:
     {/* Card content */}
   </div>
 
-CRITICAL SPACING RULES - NEVER let elements touch:
-  // Todo app input form - ALWAYS use proper spacing
-  <div className="flex gap-4 mb-6">
-    <input className="flex-1 p-3 border border-gray-300 rounded-lg" />
-    <button className="px-6 py-3 bg-blue-600 text-white rounded-lg">Add</button>
-  </div>
+CRITICAL SPACING RULES - NEVER let elements touch each other:
 
-  // Todo list - ALWAYS use space-y-4 for vertical spacing
-  <div className="space-y-4">
-    {todos.map(todo => (
-      <div key={todo.id} className="p-4 bg-white rounded-lg shadow border">
-        {todo.text}
-      </div>
-    ))}
-  </div>
+1. ALWAYS use these spacing classes between elements:
+   - gap-4 or gap-6 for flexbox spacing
+   - space-y-4 or space-y-6 for vertical spacing between children
+   - mb-4, mb-6, mt-4, mt-6 for individual element margins
+   - p-4, p-6, px-4, py-3 for internal padding
 
-  // Form fields - ALWAYS separate with mb-4 or space-y-4
-  <div className="space-y-4">
-    <input className="w-full p-3 border border-gray-300 rounded-lg" />
-    <input className="w-full p-3 border border-gray-300 rounded-lg" />
-    <button className="w-full p-3 bg-blue-600 text-white rounded-lg">Submit</button>
-  </div>
+2. MANDATORY patterns for common UI elements:
+
+   // Todo app with proper spacing - COPY THIS PATTERN
+   <div className="min-h-screen bg-gray-50 py-8">
+     <div className="max-w-2xl mx-auto px-4">
+       <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Todo App</h1>
+       
+       {/* Input form with gap-4 to prevent touching */}
+       <div className="flex gap-4 mb-8">
+         <input 
+           className="flex-1 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+           placeholder="Add new todo..."
+         />
+         <button className="px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+           Add Todo
+         </button>
+       </div>
+
+       {/* Todo list with space-y-4 for vertical gaps */}
+       <div className="space-y-4">
+         {todos.map(todo => (
+           <div key={todo.id} className="p-4 bg-white rounded-lg shadow border flex items-center justify-between">
+             <span className="text-gray-800">{todo.text}</span>
+             <button className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded">
+               Delete
+             </button>
+           </div>
+         ))}
+       </div>
+     </div>
+   </div>
+
+   // Form with proper spacing - COPY THIS PATTERN
+   <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
+     <h2 className="text-2xl font-bold mb-6">Contact Form</h2>
+     <div className="space-y-6">
+       <input className="w-full p-4 border border-gray-300 rounded-lg" placeholder="Name" />
+       <input className="w-full p-4 border border-gray-300 rounded-lg" placeholder="Email" />
+       <textarea className="w-full p-4 border border-gray-300 rounded-lg h-32" placeholder="Message"></textarea>
+       <button className="w-full p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+         Send Message
+       </button>
+     </div>
+   </div>
+
+3. ESSENTIAL spacing classes you MUST use:
+   - gap-2, gap-4, gap-6, gap-8 (for flex/grid gaps)
+   - space-y-2, space-y-4, space-y-6, space-y-8 (vertical spacing)
+   - space-x-2, space-x-4, space-x-6 (horizontal spacing)
+   - mb-2, mb-4, mb-6, mb-8 (bottom margins)
+   - mt-4, mt-6, mt-8 (top margins)
+   - p-2, p-4, p-6, p-8 (padding)
+   - px-4, px-6, py-2, py-3, py-4 (directional padding)
 - Do not use local or external image URLs — instead rely on emojis and divs with proper aspect ratios (aspect-video, aspect-square, etc.) and color placeholders (e.g. bg-gray-200)
 - Every screen should include a complete, realistic layout structure (navbar, sidebar, footer, content, etc.) — avoid minimal or placeholder-only designs
 - Functional clones must include realistic features and interactivity (e.g. drag-and-drop, add/edit/delete, toggle states, localStorage if helpful)
