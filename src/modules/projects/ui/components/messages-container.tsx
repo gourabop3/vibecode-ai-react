@@ -35,7 +35,7 @@ export const MessagesContainer = ({
       setActiveFragment(lastAssistantMessage.fragment);
     }
 
-  }, [messages]);
+  }, [messages, setActiveFragment]);
 
   useEffect(() => {
     if (bottomRef.current) {

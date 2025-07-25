@@ -51,7 +51,7 @@ export const FileExplorer = ({
         setCopied(false);
       }, 2000);
     }
-  }, [])
+  }, [selectedFile])
 
   interface FileBreadcrumb {
     filePath: string;

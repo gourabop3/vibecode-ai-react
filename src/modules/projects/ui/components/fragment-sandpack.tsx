@@ -188,7 +188,7 @@ export default App;`;
   Object.entries(files).forEach(([path, content]) => {
     // Use files directly since they should now be JavaScript
     let sandpackPath = path;
-    let sandpackContent = content;
+    const sandpackContent = content;
     
     // Convert any remaining .tsx/.ts extensions to .js (shouldn't happen with new prompt)
     if (path.endsWith('.tsx') || path.endsWith('.ts')) {
