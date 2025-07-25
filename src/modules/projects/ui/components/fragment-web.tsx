@@ -3,6 +3,7 @@ import { Fragment } from "@/generated/prisma"
 import { Button } from "@/components/ui/button"
 import { ExternalLinkIcon, RefreshCcwIcon } from "lucide-react"
 import { Hint } from "@/components/hint"
+import { Sandpack } from "@codesandbox/sandpack-react";
 
 interface Props {
   fragment : Fragment
@@ -59,13 +60,23 @@ export const FragmentWeb = ({
           </Button>
         </Hint>
       </div>
-      <iframe
-        key={fragmentKey}
-        className="w-full h-full"
-        sandbox="allow-scripts allow-same-origin allow-forms"
-        loading="lazy"
-        src={fragment.sandboxUrl}
-      />
+      {/* Sandpack live preview */}
+      <div className="flex-1 min-h-0">
+        <Sandpack
+          template="react"
+          files={fragment.files as any}
+          options={{
+            showTabs: false,
+            showLineNumbers: true,
+            showInlineErrors: true,
+            editorHeight: 300,
+            editorWidthPercentage: 50,
+            wrapContent: true,
+            showConsole: false,
+            previewHeight: "100%",
+          }}
+        />
+      </div>
     </div>
   )
 }
