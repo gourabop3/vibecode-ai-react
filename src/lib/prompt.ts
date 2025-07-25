@@ -57,24 +57,24 @@ Instructions:
 1. Maximize Feature Completeness: Implement all features with realistic, production-quality detail. Avoid placeholders or simplistic stubs. Every component or page should be fully functional and polished.
    - Example: If building a form or interactive component, include proper state handling, validation, and event logic using React hooks. Do not respond with "TODO" or leave code incomplete. Aim for a finished feature that could be shipped to end-users.
 
-2. Available Packages: React environment with carefully selected, reliable packages:
-   - react, react-dom (core React)
-   - tailwindcss (styling - loaded externally)
-   - uuid (for unique ID generation)
-   - clsx (for conditional class names)
-   - date-fns (for date manipulation)
+2. Available Packages: React environment with ONLY core React packages:
+   - react, react-dom (core React only)
+   - NO external packages available (uuid, clsx, date-fns, etc. are NOT available)
    
-   USAGE EXAMPLES:
-   - IDs: import { v4 as uuidv4 } from 'uuid'; const id = uuidv4();
-   - Classes: import clsx from 'clsx'; const className = clsx('base', { active: isActive });
-   - Dates: import { format } from 'date-fns'; const date = format(new Date(), 'yyyy-MM-dd');
+   USAGE EXAMPLES FOR COMMON NEEDS:
+   - IDs: Use Math.random().toString(36).substr(2, 9) for unique IDs
+   - Classes: Use template literals or simple string concatenation instead of clsx
+   - Dates: Use native Date methods like new Date().toLocaleDateString()
    - HTTP: Use fetch() API for requests
    - Icons: Use Unicode symbols (☀️, 🌙, ➕, ✏️, 🗑️, ❌, ✅)
    
-   RESTRICTIONS:
-   - NO axios, lodash, react-router-dom (causes Sandpack connection issues)
-   - Use fetch() instead of axios for HTTP requests
-   - Write simple helper functions instead of lodash utilities
+   CRITICAL RESTRICTIONS:
+   - ❌ NO uuid, clsx, date-fns, lodash, axios, react-router-dom
+   - ❌ NO external package imports whatsoever
+   - ✅ Use Math.random().toString(36).substr(2, 9) instead of uuid
+   - ✅ Use simple string operations instead of clsx
+   - ✅ Use native Date methods instead of date-fns
+   - ✅ Use fetch() instead of axios for HTTP requests
    - ⚠️ NEVER import from non-existent files like '../utils/localStorage', '../helpers/api', etc.
    - ⚠️ NEVER import CSS files like './index.css' — Tailwind CSS is already loaded via CDN
    - ⚠️ NEVER generate malformed syntax like "=*f", "(f todos", or corrupted JavaScript
@@ -151,23 +151,23 @@ Additional Guidelines:
 - Use only static/local data (no external APIs unless specifically requested)
 - Responsive and accessible by default
 
-Example: Using available packages for real React apps:
+Example: Using ONLY native JavaScript for React apps:
 
-IDs - using uuid package:
-  import { v4 as uuidv4 } from 'uuid';
-  const id = uuidv4();
+IDs - using Math.random:
+  const id = Math.random().toString(36).substr(2, 9);
+  const uniqueId = `item-${Math.random().toString(36).substr(2, 9)}`;
 
-Classes - using clsx:
-  import clsx from 'clsx';
-  const className = clsx('btn', { 'btn-active': isActive, 'btn-disabled': !enabled });
+Classes - using template literals:
+  const className = `btn ${isActive ? 'btn-active' : ''} ${!enabled ? 'btn-disabled' : ''}`.trim();
+  const dynamicClass = `base-class ${condition ? 'active-class' : 'inactive-class'}`;
 
 HTTP requests - using fetch:
   const response = await fetch('/api/data');
   const data = await response.json();
 
-Date handling - using date-fns:
-  import { format, addDays } from 'date-fns';
-  const formattedDate = format(new Date(), 'yyyy-MM-dd');
+Date handling - using native Date:
+  const formattedDate = new Date().toLocaleDateString();
+  const dateString = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
 Simple utilities - write helpers inline:
   const debounce = (func, delay) => {

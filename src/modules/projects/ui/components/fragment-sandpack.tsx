@@ -155,6 +155,27 @@ export const FragmentSandpack = ({
       // Use AI-generated app content
       appContent = String(appFile).trim();
       
+      // Fix common package issues for Sandpack compatibility
+      appContent = appContent
+        // Replace uuid imports with a simple alternative
+        .replace(/import\s+\{\s*v4\s+as\s+uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
+        .replace(/import\s+\{\s*uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
+        .replace(/import\s+uuid\s+from\s+['"`]uuid['"`];?/g, '')
+        // Replace uuid function calls with Math.random alternative
+        .replace(/uuidv4\(\)/g, 'Math.random().toString(36).substr(2, 9)')
+        .replace(/uuid\(\)/g, 'Math.random().toString(36).substr(2, 9)')
+        // Replace clsx imports with simple alternative
+        .replace(/import\s+clsx\s+from\s+['"`]clsx['"`];?/g, '')
+        .replace(/import\s+\{\s*clsx\s*\}\s+from\s+['"`]clsx['"`];?/g, '')
+        // Replace clsx usage with simple className logic
+        .replace(/clsx\(/g, '(')
+        // Replace date-fns imports with native Date
+        .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
+        .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
+        // Remove empty lines left by removed imports
+        .replace(/^\s*$/gm, '')
+        .replace(/\n\n+/g, '\n\n');
+      
       // Ensure React import
       if (!appContent.includes('import React')) {
         appContent = `import React from 'react';\n\n${appContent}`;
@@ -171,7 +192,7 @@ export const FragmentSandpack = ({
         }
       }
       
-      console.log("✅ Using AI-generated App component");
+      console.log("✅ Using AI-generated App component (processed for Sandpack compatibility)");
     } else {
       console.log("🔍 No main App file found, searching for other React components...");
       // If no main App file, try to use any React component
@@ -186,6 +207,27 @@ export const FragmentSandpack = ({
         const [, componentContent] = reactFiles[0];
         appContent = String(componentContent).trim();
         
+        // Fix common package issues for Sandpack compatibility
+        appContent = appContent
+          // Replace uuid imports with a simple alternative
+          .replace(/import\s+\{\s*v4\s+as\s+uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
+          .replace(/import\s+\{\s*uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
+          .replace(/import\s+uuid\s+from\s+['"`]uuid['"`];?/g, '')
+          // Replace uuid function calls with Math.random alternative
+          .replace(/uuidv4\(\)/g, 'Math.random().toString(36).substr(2, 9)')
+          .replace(/uuid\(\)/g, 'Math.random().toString(36).substr(2, 9)')
+          // Replace clsx imports with simple alternative
+          .replace(/import\s+clsx\s+from\s+['"`]clsx['"`];?/g, '')
+          .replace(/import\s+\{\s*clsx\s*\}\s+from\s+['"`]clsx['"`];?/g, '')
+          // Replace clsx usage with simple className logic
+          .replace(/clsx\(/g, '(')
+          // Replace date-fns imports with native Date
+          .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
+          .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
+          // Remove empty lines left by removed imports
+          .replace(/^\s*$/gm, '')
+          .replace(/\n\n+/g, '\n\n');
+        
         // Ensure React import
         if (!appContent.includes('import React')) {
           appContent = `import React from 'react';\n\n${appContent}`;
@@ -198,7 +240,7 @@ export const FragmentSandpack = ({
           appContent += `\n\nexport default ${componentName};`;
         }
         
-        console.log("✅ Using first React component found as App");
+        console.log("✅ Using first React component found as App (processed for Sandpack)");
       } else {
         console.log("❌ No React components found in AI files");
         hasAIGeneratedContent = false;
@@ -250,12 +292,35 @@ export default App;`;
       
       // Create completely new variables to avoid any readonly references
       const filePath = String(path).trim();
-      const fileContent = String(content || '');
+      let fileContent = String(content || '');
       
       // Skip if path is empty after trimming
       if (!filePath) {
         console.warn("Skipping file with empty path:", { originalPath: path, content });
         return;
+      }
+      
+      // Fix package compatibility issues for all JavaScript/TypeScript files
+      if (filePath.endsWith('.js') || filePath.endsWith('.jsx') || filePath.endsWith('.ts') || filePath.endsWith('.tsx')) {
+        fileContent = fileContent
+          // Replace uuid imports with a simple alternative
+          .replace(/import\s+\{\s*v4\s+as\s+uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
+          .replace(/import\s+\{\s*uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
+          .replace(/import\s+uuid\s+from\s+['"`]uuid['"`];?/g, '')
+          // Replace uuid function calls with Math.random alternative
+          .replace(/uuidv4\(\)/g, 'Math.random().toString(36).substr(2, 9)')
+          .replace(/uuid\(\)/g, 'Math.random().toString(36).substr(2, 9)')
+          // Replace clsx imports with simple alternative
+          .replace(/import\s+clsx\s+from\s+['"`]clsx['"`];?/g, '')
+          .replace(/import\s+\{\s*clsx\s*\}\s+from\s+['"`]clsx['"`];?/g, '')
+          // Replace clsx usage with simple className logic
+          .replace(/clsx\(/g, '(')
+          // Replace date-fns imports with native Date
+          .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
+          .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
+          // Remove empty lines left by removed imports
+          .replace(/^\s*$/gm, '')
+          .replace(/\n\n+/g, '\n\n');
       }
       
       // Convert path format for Sandpack
@@ -292,13 +357,7 @@ export default App;`;
       dependencies: {
         react: "^18.0.0",
         "react-dom": "^18.0.0",
-        "react-scripts": "5.0.1",
-        tailwindcss: "^3.3.0",
-        autoprefixer: "^10.4.14",
-        postcss: "^8.4.24",
-        uuid: "^9.0.0",
-        clsx: "^2.0.0",
-        "date-fns": "^2.30.0"
+        "react-scripts": "5.0.1"
       },
       scripts: {
         start: "react-scripts start",
