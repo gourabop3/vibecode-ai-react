@@ -318,6 +318,14 @@ export default App;`;
           // Replace date-fns imports with native Date
           .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
           .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
+          // Fix relative component imports to work in Sandpack
+          .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "/src/components/$1"')
+          .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "/src/$1"')
+          .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "/src/components/$1"')
+          .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "/src/$1"')
+          // Fix other common relative imports
+          .replace(/from\s+['"`]\.\/utils\/(\w+)['"`]/g, 'from "/src/utils/$1"')
+          .replace(/from\s+['"`]\.\/hooks\/(\w+)['"`]/g, 'from "/src/hooks/$1"')
           // Remove empty lines left by removed imports
           .replace(/^\s*$/gm, '')
           .replace(/\n\n+/g, '\n\n');
