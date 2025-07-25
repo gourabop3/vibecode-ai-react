@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Fragment } from "@/generated/prisma"
 import { Button } from "@/components/ui/button"
 import { RefreshCcwIcon } from "lucide-react"
@@ -44,50 +44,64 @@ export const FragmentSandpack = ({
   fragment
 }: Props) => {
   
-  // Convert fragment files to Sandpack format - handle different data structures
-  let files: { [path: string]: string } = {};
-  
-  console.log("🔍 SANDPACK COMPONENT RENDERED");
-  console.log("Raw fragment object:", fragment);
-  console.log("Fragment ID:", fragment.id);
-  console.log("Fragment title:", fragment.title);
-  console.log("Raw fragment.files:", fragment.files);
-  console.log("Type of fragment.files:", typeof fragment.files);
-  console.log("Fragment.files is null/undefined:", fragment.files == null);
-  
-  // Handle different possible data formats - create a completely new object to avoid readonly issues
-  if (fragment.files) {
-    console.log("✅ Fragment has files");
-    if (typeof fragment.files === 'string') {
-      console.log("📄 Files are stored as string, parsing...");
-      try {
-        const parsed = JSON.parse(fragment.files);
-        // Deep clone to ensure no readonly issues
-        files = JSON.parse(JSON.stringify(parsed));
-      } catch (e) {
-        console.error("❌ Failed to parse fragment.files as JSON:", e);
-        files = {};
-      }
-    } else if (typeof fragment.files === 'object' && fragment.files !== null) {
-      console.log("📦 Files are stored as object, creating deep copy...");
-      // Deep clone to ensure complete separation from readonly source
-      files = JSON.parse(JSON.stringify(fragment.files));
-    } else {
-      console.log("❓ Unknown fragment.files format:", typeof fragment.files);
-      files = {};
+  // Completely isolate and clone all fragment data to prevent readonly issues
+  const safeFragment = useMemo(() => {
+    try {
+      // Deep clone the entire fragment to break any readonly references
+      return JSON.parse(JSON.stringify(fragment));
+    } catch (error) {
+      console.error("Error cloning fragment:", error);
+      return { id: 'default', files: {} };
     }
-  } else {
-    console.log("❌ Fragment has no files property");
-    files = {};
-  }
+  }, [fragment]);
+  
+  // Convert fragment files to Sandpack format - handle different data structures
+  const files: { [path: string]: string } = useMemo(() => {
+    console.log("🔍 SANDPACK COMPONENT RENDERED");
+    console.log("Safe fragment object:", safeFragment);
+    console.log("Fragment ID:", safeFragment.id);
+    console.log("Fragment title:", safeFragment.title);
+    console.log("Raw fragment.files:", safeFragment.files);
+    console.log("Type of fragment.files:", typeof safeFragment.files);
+    console.log("Fragment.files is null/undefined:", safeFragment.files == null);
+    
+    let processedFiles: { [path: string]: string } = {};
+    
+    // Handle different possible data formats
+    if (safeFragment.files) {
+      console.log("✅ Fragment has files");
+      if (typeof safeFragment.files === 'string') {
+        console.log("📄 Files are stored as string, parsing...");
+        try {
+          const parsed = JSON.parse(safeFragment.files);
+          processedFiles = { ...parsed };
+        } catch (e) {
+          console.error("❌ Failed to parse fragment.files as JSON:", e);
+          processedFiles = {};
+        }
+      } else if (typeof safeFragment.files === 'object' && safeFragment.files !== null) {
+        console.log("📦 Files are stored as object, creating copy...");
+        processedFiles = { ...safeFragment.files };
+      } else {
+        console.log("❓ Unknown fragment.files format:", typeof safeFragment.files);
+        processedFiles = {};
+      }
+    } else {
+      console.log("❌ Fragment has no files property");
+      processedFiles = {};
+    }
+    
+    return processedFiles;
+  }, [safeFragment]);
   
   console.log("Processed files object:", files);
   
   // Create a stable key for Sandpack to prevent re-renders and readonly issues
-  const sandpackKey = `sandpack-${String(fragment.id || 'default')}-${Object.keys(files || {}).length}`;
+  const sandpackKey = `sandpack-${String(safeFragment.id || 'default')}-${Object.keys(files || {}).length}`;
   
-  // Create minimal sandpack files
-  const sandpackFiles: { [key: string]: string } = {};
+  // Create minimal sandpack files using useMemo to prevent recreating objects
+  const sandpackFiles: { [key: string]: string } = useMemo(() => {
+    const newSandpackFiles: { [key: string]: string } = {};
   
   // Default App component - create new string to avoid any readonly issues
   let appContent = String(`import React from 'react';
@@ -208,16 +222,16 @@ export default App;`);
         sandpackPath = `/${sandpackPath}`;
       }
       
-             // Directly assign to avoid readonly issues
-       sandpackFiles[sandpackPath] = fileContent;
+                   // Directly assign to avoid readonly issues
+      newSandpackFiles[sandpackPath] = fileContent;
     });
   } catch (error) {
     console.error("Error processing AI files:", error);
   }
 
   // Ensure main App.js exists
-  if (!sandpackFiles["/src/App.js"]) {
-    sandpackFiles["/src/App.js"] = String(appContent);
+  if (!newSandpackFiles["/src/App.js"]) {
+    newSandpackFiles["/src/App.js"] = String(appContent);
   }
 
   // Add COMPLETE React project files
@@ -372,31 +386,34 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 To learn React, check out the [React documentation](https://reactjs.org/).`;
 
     // Create all React project files
-    sandpackFiles["/package.json"] = JSON.stringify(packageJson, null, 2);
-    sandpackFiles["/src/index.js"] = indexJs;
-    sandpackFiles["/src/index.css"] = indexCss;
-    sandpackFiles["/public/index.html"] = indexHtml;
-    sandpackFiles["/tailwind.config.js"] = tailwindConfig;
-    sandpackFiles["/.gitignore"] = gitignore;
-    sandpackFiles["/README.md"] = readme;
+    newSandpackFiles["/package.json"] = JSON.stringify(packageJson, null, 2);
+    newSandpackFiles["/src/index.js"] = indexJs;
+    newSandpackFiles["/src/index.css"] = indexCss;
+    newSandpackFiles["/public/index.html"] = indexHtml;
+    newSandpackFiles["/tailwind.config.js"] = tailwindConfig;
+    newSandpackFiles["/.gitignore"] = gitignore;
+    newSandpackFiles["/README.md"] = readme;
     
   } catch (error) {
     console.error("Error creating React files:", error);
   }
   
-     console.log("Final sandpack files:", Object.keys(sandpackFiles));
-   console.log("Converted App.js content:", sandpackFiles["/src/App.js"]?.substring(0, 500) + "...");
-   console.log("Index.js content:", sandpackFiles["/src/index.js"]);
-   console.log("Package.json content:", sandpackFiles["/package.json"]);
+     console.log("Final sandpack files:", Object.keys(newSandpackFiles));
+   console.log("Converted App.js content:", newSandpackFiles["/src/App.js"]?.substring(0, 500) + "...");
+   console.log("Index.js content:", newSandpackFiles["/src/index.js"]);
+   console.log("Package.json content:", newSandpackFiles["/package.json"]);
   
   // TEMPORARY TEST: Force some content to see if Sandpack works
   if (appContent.includes("Welcome to Your React App")) {
     console.log("⚠️ USING DEFAULT CONTENT - AI files not detected!");
-    console.log("Fragment object:", fragment);
+    console.log("Fragment object:", safeFragment);
     console.log("Files available:", files ? Object.keys(files) : "No files");
   } else {
     console.log("✅ USING AI-GENERATED CONTENT");
   }
+  
+  return newSandpackFiles;
+  }, [files, safeFragment]);
 
   return (
     <div className="flex flex-col h-full w-full">
