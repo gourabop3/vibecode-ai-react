@@ -89,9 +89,16 @@ function App() {
 export default App;`;
 
   // Process fragment files if they exist
+  console.log("Fragment files:", files);
+  
   if (files && Object.keys(files).length > 0) {
-    // Look for App component in various locations
-    const appFile = files["App.tsx"] || files["src/App.tsx"] || files["App.js"] || files["src/App.js"];
+    // Look for App component in various locations and path formats
+    const appFile = files["App.tsx"] || files["src/App.tsx"] || files["App.js"] || files["src/App.js"] ||
+                   files["/src/App.tsx"] || files["/src/App.js"] || files["/App.tsx"] || files["/App.js"] ||
+                   files["app.tsx"] || files["app.js"];
+    
+    console.log("Available files:", Object.keys(files));
+    console.log("Found app file:", appFile);
     
     if (appFile && appFile.trim()) {
       appContent = appFile;
@@ -111,11 +118,42 @@ export default App;`;
           appContent += '\n\nexport default App;';
         }
       }
+      
+      console.log("Using AI-generated app content");
+    } else {
+      // If no main App file, try to use any React component
+      const reactFiles = Object.entries(files).filter(([path, content]) => 
+        content && (content.includes('function ') || content.includes('const ') || content.includes('class ')) &&
+        (path.endsWith('.tsx') || path.endsWith('.jsx') || path.endsWith('.js'))
+      );
+      
+      if (reactFiles.length > 0) {
+        const [, componentContent] = reactFiles[0];
+        appContent = componentContent;
+        
+        // Ensure React import
+        if (!appContent.includes('import React')) {
+          appContent = `import React from 'react';\n\n${appContent}`;
+        }
+        
+        // Find component name and set as default export
+        const componentMatch = appContent.match(/(?:function|const|class)\s+(\w+)/);
+        if (componentMatch && !appContent.includes('export default')) {
+          const componentName = componentMatch[1];
+          appContent += `\n\nexport default ${componentName};`;
+        }
+        
+        console.log("Using first React component found");
+      } else {
+        console.log("No React components found, using default");
+      }
     }
   }
 
   // Set up minimal files
   sandpackFiles["/App.js"] = appContent;
+  
+  console.log("Final app content being used:", appContent);
 
   return (
     <div className="flex flex-col h-full w-full">
