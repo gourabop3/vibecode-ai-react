@@ -2,64 +2,25 @@
 
 import { useState } from "react"
 import { Fragment } from "@/generated/prisma"
-import { Button } from "@/components/ui/button"
-import { RefreshCcwIcon, ExternalLinkIcon } from "lucide-react"
-import { Hint } from "@/components/hint"
 import { 
   SandpackProvider, 
-  SandpackPreview, 
-  useSandpack
+  SandpackCodeEditor,
+  SandpackFileExplorer,
+  SandpackLayout
 } from "@codesandbox/sandpack-react"
-
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup
+} from "@/components/ui/resizable";
 
 interface Props {
   fragment: Fragment
 }
 
-const SandpackToolbar = () => {
-  const { sandpack } = useSandpack();
-  
-  const handleRefresh = () => {
-    sandpack.resetAllModules();
-  };
-
-  const handleOpenInNewWindow = () => {
-    // Open preview in new window
-    if (sandpack.iframe && sandpack.iframe.contentWindow) {
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(sandpack.iframe.contentDocument?.documentElement.outerHTML || '');
-        newWindow.document.close();
-      }
-    }
-  };
-
-  return (
-    <div className="p-2 border-b bg-sidebar flex items-center gap-x-2">
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={handleRefresh}
-      >
-        <RefreshCcwIcon className="w-4 h-4" />
-      </Button>
-      <Hint content="Open in new tab" align="start">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleOpenInNewWindow}
-        >
-          <ExternalLinkIcon className="w-4 h-4" />
-        </Button>
-      </Hint>
-    </div>
-  );
-};
-
-export const FragmentSandpack = ({
+export const FragmentCode = ({
   fragment
 }: Props) => {
-  
   // Convert fragment files to Sandpack format
   const files = fragment.files as { [path: string]: string };
   
@@ -209,14 +170,26 @@ export default App;`;
           activeFile: "/src/App.tsx"
         }}
       >
-        <SandpackToolbar />
-        
-        <div className="flex-1">
-          <SandpackPreview 
-            showOpenInCodeSandbox={false}
-            showRefreshButton={false}
-            style={{ height: "100%" }}
-          />
+        <div className="h-full">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
+            <ResizablePanel
+              defaultSize={25}
+              minSize={15}
+              maxSize={40}
+              className="border-r"
+            >
+              <SandpackFileExplorer />
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel
+              defaultSize={75}
+              minSize={60}
+            >
+              <SandpackCodeEditor 
+                style={{ height: "100%" }}
+              />
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
       </SandpackProvider>
     </div>

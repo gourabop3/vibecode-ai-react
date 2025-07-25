@@ -18,6 +18,7 @@ import { MessagesContainer } from "../components/messages-container";
 import { Fragment } from "@/generated/prisma";
 import { Header } from "../components/header";
 import { FragmentSandpack } from "../components/fragment-sandpack";
+import { FragmentCode } from "../components/fragment-code";
 import { CodeIcon, CrownIcon, EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserControl } from "@/components/user-control";
@@ -106,7 +107,15 @@ export const ProjectView = ({
                 )
               }
             </TabsContent>
-
+            <TabsContent value="code" className="min-h-0">
+              {
+                !!activeFragment && (
+                  <FragmentCode
+                    fragment={activeFragment}
+                  />
+                )
+              }
+            </TabsContent>
           </Tabs>
         </ResizablePanel>
       </ResizablePanelGroup>
