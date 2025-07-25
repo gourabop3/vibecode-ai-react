@@ -33,10 +33,13 @@ export const codeAgentFunction = inngest.createFunction(
                 where: {
                     projectId: event.data.projectId,
                 },
+                include: {
+                    fragment: true
+                },
                 orderBy: {
                     createdAt: "desc",
                 },
-                take : 5,
+                take : 10, // Increased from 5 to 10 for better context
             });
 
             for (const message of messages) {
@@ -45,6 +48,25 @@ export const codeAgentFunction = inngest.createFunction(
                     role: message.role === "ASSISTANT" ? "assistant" : "user",
                     type: "text",
                 });
+                
+                // If this is an assistant message with a fragment, add the current files as context
+                if (message.role === "ASSISTANT" && message.fragment && message.fragment.files) {
+                    try {
+                        const files = typeof message.fragment.files === 'string' 
+                            ? JSON.parse(message.fragment.files)
+                            : message.fragment.files;
+                        
+                        if (files && Object.keys(files).length > 0) {
+                            formattedMessages.push({
+                                content: `Current app files:\n${JSON.stringify(files, null, 2)}`,
+                                role: "assistant",
+                                type: "text",
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error parsing fragment files:", error);
+                    }
+                }
             }
             return formattedMessages.reverse();
         });
@@ -114,21 +136,27 @@ export const codeAgentFunction = inngest.createFunction(
                 }),
                 createTool({
                     name : "readFiles",
-                    description: "Read files from the React application.",
+                    description: "Read files from the React application. Use this to understand existing files before making modifications.",
                     parameters: z.object({
-                        files: z.array(z.string())
+                        files: z.array(z.string()).optional().describe("Specific files to read. If not provided, returns all available files."),
                     }),
                     handler: async ({ files }, { step, network })=>{
                         return await step?.run("read-files", async()=>{
                             try {
                                 const currentFiles = network.state.data.files || {};
+                                
+                                // If no specific files requested, return all files
+                                if (!files || files.length === 0) {
+                                    return `All available files:\n${JSON.stringify(currentFiles, null, 2)}`;
+                                }
+                                
                                 const contents: { path: string; content: string }[] = [];
                                 
                                 for (const file of files) {
                                     const content = currentFiles[file] || "File not found";
                                     contents.push({ path: file, content });
                                 }
-                                return JSON.stringify(contents);
+                                return JSON.stringify(contents, null, 2);
                             } catch (error) {
                                 return `Error reading files: ${error}`;
                             }
@@ -152,7 +180,7 @@ export const codeAgentFunction = inngest.createFunction(
         const network = createNetwork<AgentState>({ 
             name : "coding-agent-network",
             agents : [codeAgent],
-            maxIter : 15,
+            maxIter : 25, // Increased from 15 to 25 for complex modifications
             defaultState : state,
             router : async ({network})=> {
                 const summary = network.state.data.summary;
@@ -228,7 +256,12 @@ export const codeAgentFunction = inngest.createFunction(
             }
         }
 
-        const isError = !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0;
+        // More robust error checking
+        const hasValidSummary = result.state.data.summary && 
+                               result.state.data.summary.includes("<task_summary>");
+        const hasValidFiles = result.state.data.files && 
+                             Object.keys(result.state.data.files).length > 0;
+        const isError = !hasValidSummary || !hasValidFiles;
 
         // Debug: Log the files being saved
         console.log("Files about to be saved to fragment:", result.state.data.files);
