@@ -122,8 +122,9 @@ export const FragmentSandpack = ({
   
   console.log("Processed files object:", files);
   
-  // Create a stable key for Sandpack to prevent re-renders and readonly issues
-  const sandpackKey = `sandpack-${String(safeFragment.id || 'default')}-${Object.keys(files || {}).length}`;
+  // Create a stable key for Sandpack to prevent re-renders and readonly issues  
+  const contentHash = Object.values(files || {}).join('').length;
+  const sandpackKey = `sandpack-${String(safeFragment.id || 'default')}-${Object.keys(files || {}).length}-${contentHash}`;
   
   // Create minimal sandpack files using useMemo to prevent recreating objects
   const sandpackFiles: { [key: string]: string } = useMemo(() => {
@@ -277,10 +278,9 @@ export default App;`;
     console.error("Error processing AI files:", error);
   }
 
-  // Ensure main App.js exists
-  if (!newSandpackFiles["/src/App.js"]) {
-    newSandpackFiles["/src/App.js"] = String(appContent);
-  }
+  // Ensure main App.js exists and always use our processed appContent
+  newSandpackFiles["/src/App.js"] = String(appContent);
+  console.log("📝 Setting App.js content:", String(appContent).substring(0, 200) + "...");
 
   // Add COMPLETE React project files
   try {
@@ -620,24 +620,13 @@ body {
                  template="react"
                  files={{
                    "/src/App.js": validatedSandpackFiles["/src/App.js"],
-                   "/src/index.js": (() => {
-                     const aiIndexContent = validatedSandpackFiles["/src/index.js"];
-                     if (aiIndexContent) {
-                       // Ensure the AI index.js imports index.css
-                       let content = aiIndexContent;
-                       if (!content.includes('import \'./index.css\'') && !content.includes('import "./index.css"')) {
-                         content = content.replace('import ReactDOM from \'react-dom/client\';', 'import ReactDOM from \'react-dom/client\';\nimport \'./index.css\';');
-                       }
-                       return content;
-                     }
-                     return `import React from 'react';
+                   "/src/index.js": `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);`;
-                   })(),
+root.render(<App />);`,
                    "/public/index.html": `<!DOCTYPE html>
 <html lang="en">
   <head>
