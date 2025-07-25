@@ -71,3 +71,5 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 - **Database errors?** Double-check your `DATABASE_URL` in `.env` and that your MongoDB is accessible.
 - **Sandbox/Preview not working?** Sandboxes are temporary. If expired, re-run the preview or use local setup.
 - **Still stuck?** Check logs for errors and share them for help.
+
+# Deployment trigger: minor change to force Render auto-deploy
