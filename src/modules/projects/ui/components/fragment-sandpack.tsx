@@ -192,65 +192,70 @@ export default App;`);
     }
   }
 
-  // Note: For vanilla template, we embed everything in the HTML file above
-  // Individual file processing is not needed since we use a single HTML file
-  
-  // For vanilla template, create a single HTML file with everything
+  // Process all AI-generated files for React template
   try {
-    sandpackFiles["/index.html"] = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>React App</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    #root {
-      min-height: 100vh;
-    }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  
-  <script type="text/babel">
-    ${appContent.replace('import React from \'react\';', '').replace('export default App;', '')}
-    
-    // Render the app
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App));
-  </script>
-</body>
-</html>`;
+    Object.entries(files || {}).forEach(([path, content]) => {
+      // Create completely new variables to avoid any readonly references
+      const filePath = String(path);
+      const fileContent = String(content || '');
+      
+      // Convert path format for Sandpack
+      let sandpackPath = filePath;
+      if (sandpackPath.endsWith('.tsx') || sandpackPath.endsWith('.ts')) {
+        sandpackPath = sandpackPath.replace(/\.tsx?$/, '.js');
+      }
+      if (!sandpackPath.startsWith('/')) {
+        sandpackPath = `/${sandpackPath}`;
+      }
+      
+             // Directly assign to avoid readonly issues
+       sandpackFiles[sandpackPath] = fileContent;
+    });
   } catch (error) {
-    console.error("Error creating HTML file:", error);
-    // Fallback HTML
-    sandpackFiles["/index.html"] = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>React App</title>
-</head>
-<body>
-  <div id="root">
-    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-      <h1>Error loading React app</h1>
-    </div>
-  </div>
-</body>
-</html>`;
+    console.error("Error processing AI files:", error);
+  }
+
+  // Ensure main App.js exists
+  if (!sandpackFiles["/src/App.js"]) {
+    sandpackFiles["/src/App.js"] = String(appContent);
+  }
+
+  // Add React project files
+  try {
+    const packageJson = {
+      dependencies: {
+        react: "^18.0.0",
+        "react-dom": "^18.0.0"
+      }
+    };
+    
+    const indexJs = `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './src/App.js';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);`;
+
+    const indexCss = `body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}`;
+
+    // Create completely new objects to avoid readonly issues
+    sandpackFiles["/package.json"] = JSON.stringify(packageJson, null, 2);
+    sandpackFiles["/index.js"] = indexJs;
+    sandpackFiles["/src/index.css"] = indexCss;
+    
+  } catch (error) {
+    console.error("Error creating React files:", error);
   }
   
      console.log("Final sandpack files:", Object.keys(sandpackFiles));
@@ -272,15 +277,13 @@ export default App;`);
       <div className="flex-1 min-h-0">
         <SandpackProvider
           key={sandpackKey}
-          template="vanilla"
+          template="react"
           files={sandpackFiles}
           theme="light"
-          style={{ height: "100%", display: "flex", flexDirection: "column" }}
         >
           <SandpackPreview 
             showOpenInCodeSandbox={false}
             showRefreshButton={false}
-            style={{ height: "100%", width: "100%", flex: 1 }}
           />
         </SandpackProvider>
       </div>
