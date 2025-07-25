@@ -533,13 +533,13 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
             );
           } catch (error) {
             console.error("🚨 SANDPACK PROVIDER ERROR:", error);
-            console.error("🚨 ERROR STACK:", error.stack);
+            console.error("🚨 ERROR STACK:", error instanceof Error ? error.stack : 'No stack trace');
             console.error("🚨 FILES THAT CAUSED ERROR:", validatedSandpackFiles);
             return (
               <div className="flex items-center justify-center h-full text-red-500">
                 <div className="text-center">
                   <p className="font-bold">Sandpack Error</p>
-                  <p className="text-sm">{error.message}</p>
+                  <p className="text-sm">{error instanceof Error ? error.message : String(error)}</p>
                 </div>
               </div>
             );
