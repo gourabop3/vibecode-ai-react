@@ -464,18 +464,28 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
 
   // Final validation of sandpack files before rendering
   const validatedSandpackFiles = useMemo(() => {
+    console.log("🔍 FINAL VALIDATION - sandpackFiles:", sandpackFiles);
+    console.log("🔍 FINAL VALIDATION - sandpackFiles keys:", Object.keys(sandpackFiles || {}));
+    
     const validated: { [key: string]: string } = {};
     
     Object.entries(sandpackFiles || {}).forEach(([path, content]) => {
+      console.log("🔍 VALIDATING PATH:", { path, pathType: typeof path, pathValue: JSON.stringify(path) });
+      console.log("🔍 VALIDATING CONTENT:", { contentType: typeof content, contentLength: String(content || '').length });
+      
       // Ensure path is valid
       if (path && typeof path === 'string' && path.trim()) {
         const cleanPath = path.trim();
         const cleanContent = typeof content === 'string' ? content : String(content || '');
         validated[cleanPath] = cleanContent;
+        console.log("✅ ADDED TO VALIDATED:", cleanPath);
       } else {
-        console.warn("Skipping invalid path in sandpack files:", { path, content: typeof content });
+        console.error("❌ SKIPPING INVALID PATH:", { path, pathType: typeof path, content: typeof content });
       }
     });
+    
+    console.log("🔍 FINAL VALIDATED FILES:", Object.keys(validated));
+    console.log("🔍 FINAL VALIDATED FILES OBJECT:", validated);
     
     return validated;
   }, [sandpackFiles]);
@@ -490,28 +500,51 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
     );
   }
 
+  // Debug log right before rendering SandpackProvider
+  console.log("🚀 ABOUT TO RENDER SANDPACK WITH FILES:", validatedSandpackFiles);
+  console.log("🚀 SANDPACK KEY:", sandpackKey);
+  console.log("🚀 FILES KEYS:", Object.keys(validatedSandpackFiles));
+  
   return (
     <div className="flex flex-col h-full w-full">
       <SandpackToolbar />
       
       <div className="flex-1 min-h-0 h-full">
-        <SandpackProvider
-          key={sandpackKey}
-          template="react"
-          files={validatedSandpackFiles}
-          theme="light"
-          options={{
-            visibleFiles: ["/src/App.js", "/src/index.js"],
-            activeFile: "/src/App.js"
-          }}
-          style={{ height: "100%" }}
-        >
-          <SandpackPreview 
-            showOpenInCodeSandbox={false}
-            showRefreshButton={false}
-            style={{ height: "100%" }}
-          />
-        </SandpackProvider>
+        {(() => {
+          try {
+            return (
+              <SandpackProvider
+                key={sandpackKey}
+                template="react"
+                files={validatedSandpackFiles}
+                theme="light"
+                options={{
+                  visibleFiles: ["/src/App.js", "/src/index.js"],
+                  activeFile: "/src/App.js"
+                }}
+                style={{ height: "100%" }}
+              >
+                <SandpackPreview 
+                  showOpenInCodeSandbox={false}
+                  showRefreshButton={false}
+                  style={{ height: "100%" }}
+                />
+              </SandpackProvider>
+            );
+          } catch (error) {
+            console.error("🚨 SANDPACK PROVIDER ERROR:", error);
+            console.error("🚨 ERROR STACK:", error.stack);
+            console.error("🚨 FILES THAT CAUSED ERROR:", validatedSandpackFiles);
+            return (
+              <div className="flex items-center justify-center h-full text-red-500">
+                <div className="text-center">
+                  <p className="font-bold">Sandpack Error</p>
+                  <p className="text-sm">{error.message}</p>
+                </div>
+              </div>
+            );
+          }
+        })()}
       </div>
     </div>
   );
