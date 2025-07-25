@@ -190,7 +190,7 @@ export default App;`;
     Object.entries(files || {}).forEach(([path, content]) => {
       // Create new variables to avoid readonly issues
       let sandpackPath = String(path);
-      let sandpackContent = String(content || '');
+      const sandpackContent = String(content || '');
       
       // Convert any remaining .tsx/.ts extensions to .js (shouldn't happen with new prompt)
       if (sandpackPath.endsWith('.tsx') || sandpackPath.endsWith('.ts')) {
