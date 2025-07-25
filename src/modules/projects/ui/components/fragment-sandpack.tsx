@@ -600,11 +600,29 @@ body {
                               <SandpackProvider
                  key={sandpackKey}
                  template="react"
-                 files={validatedSandpackFiles}
+                 files={{
+                   "/src/App.js": validatedSandpackFiles["/src/App.js"] || `import React from 'react';
+
+function App() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <h1 className="text-2xl font-bold">Hello World</h1>
+    </div>
+  );
+}
+
+export default App;`,
+                   "/src/index.js": validatedSandpackFiles["/src/index.js"] || `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);`
+                 }}
                  theme="light"
                  options={{
-                   visibleFiles: Object.keys(validatedSandpackFiles).includes("/src/App.js") ? ["/src/App.js"] : [Object.keys(validatedSandpackFiles)[0]],
-                   activeFile: Object.keys(validatedSandpackFiles).includes("/src/App.js") ? "/src/App.js" : Object.keys(validatedSandpackFiles)[0]
+                   visibleFiles: ["/src/App.js"],
+                   activeFile: "/src/App.js"
                  }}
                  style={{ height: "100%" }}
               >
