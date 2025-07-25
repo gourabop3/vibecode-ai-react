@@ -55,38 +55,42 @@ export const FragmentSandpack = ({
   console.log("Type of fragment.files:", typeof fragment.files);
   console.log("Fragment.files is null/undefined:", fragment.files == null);
   
-  // Handle different possible data formats - create a new object to avoid readonly issues
+  // Handle different possible data formats - create a completely new object to avoid readonly issues
   if (fragment.files) {
     console.log("✅ Fragment has files");
     if (typeof fragment.files === 'string') {
       console.log("📄 Files are stored as string, parsing...");
       try {
         const parsed = JSON.parse(fragment.files);
-        files = { ...parsed }; // Create new object to avoid readonly issues
+        // Deep clone to ensure no readonly issues
+        files = JSON.parse(JSON.stringify(parsed));
       } catch (e) {
         console.error("❌ Failed to parse fragment.files as JSON:", e);
         files = {};
       }
     } else if (typeof fragment.files === 'object' && fragment.files !== null) {
-      console.log("📦 Files are stored as object, creating copy...");
-      files = { ...(fragment.files as { [path: string]: string }) }; // Create new object to avoid readonly issues
+      console.log("📦 Files are stored as object, creating deep copy...");
+      // Deep clone to ensure complete separation from readonly source
+      files = JSON.parse(JSON.stringify(fragment.files));
     } else {
       console.log("❓ Unknown fragment.files format:", typeof fragment.files);
+      files = {};
     }
   } else {
     console.log("❌ Fragment has no files property");
+    files = {};
   }
   
   console.log("Processed files object:", files);
   
   // Create a stable key for Sandpack to prevent re-renders and readonly issues
-  const sandpackKey = `sandpack-${fragment.id || 'default'}-${Object.keys(files || {}).length}`;
+  const sandpackKey = `sandpack-${String(fragment.id || 'default')}-${Object.keys(files || {}).length}-${Date.now()}`;
   
   // Create minimal sandpack files
   const sandpackFiles: { [key: string]: string } = {};
   
-  // Default App component
-  let appContent = `import React from 'react';
+  // Default App component - create new string to avoid any readonly issues
+  let appContent = String(`import React from 'react';
 
 function App() {
   return (
@@ -118,7 +122,7 @@ function App() {
   );
 }
 
-export default App;`;
+export default App;`);
 
   // Process fragment files if they exist
   console.log("Fragment files:", files);
@@ -134,8 +138,9 @@ export default App;`;
     console.log("Available files:", Object.keys(files));
     console.log("Found app file:", appFile);
     
-    if (appFile && appFile.trim()) {
-      appContent = appFile;
+    if (appFile && String(appFile).trim()) {
+      // Ensure we're working with a string copy to avoid readonly issues
+      appContent = String(appFile);
       
       // Ensure React import
       if (!appContent.includes('import React')) {
