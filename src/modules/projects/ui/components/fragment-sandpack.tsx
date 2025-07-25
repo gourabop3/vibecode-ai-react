@@ -192,79 +192,65 @@ export default App;`);
     }
   }
 
-  // Set up complete files for Sandpack with safety checks
-  // Add all AI-generated files to Sandpack
-  try {
-    Object.entries(files || {}).forEach(([path, content]) => {
-      // Create new variables to avoid readonly issues
-      let sandpackPath = String(path);
-      const sandpackContent = String(content || '');
-      
-      // Convert any remaining .tsx/.ts extensions to .js (shouldn't happen with new prompt)
-      if (sandpackPath.endsWith('.tsx') || sandpackPath.endsWith('.ts')) {
-        sandpackPath = sandpackPath.replace(/\.tsx?$/, '.js');
-      }
-      
-      // Ensure path starts with /
-      if (!sandpackPath.startsWith('/')) {
-        sandpackPath = `/${sandpackPath}`;
-      }
-      
-      // Create new property in sandpackFiles object
-      sandpackFiles[sandpackPath] = sandpackContent;
-    });
-  } catch (error) {
-    console.error("Error processing files for Sandpack:", error);
-  }
+  // Note: For vanilla template, we embed everything in the HTML file above
+  // Individual file processing is not needed since we use a single HTML file
   
-  // Ensure App.js is always present in sandpackFiles
-  if (!sandpackFiles["/src/App.js"]) {
-    console.log("⚠️ App.js not found in sandpackFiles, adding processed appContent");
-    sandpackFiles["/src/App.js"] = appContent;
-  }
-  
-  // Add essential React files with Sandpack-compatible packages
+  // For vanilla template, create a single HTML file with everything
   try {
-    sandpackFiles["/package.json"] = JSON.stringify({
-      dependencies: {
-        react: "^18.0.0",
-        "react-dom": "^18.0.0",
-        uuid: "^9.0.0",
-        clsx: "^2.0.0",
-        "date-fns": "^2.30.0"
-      }
-    }, null, 2);
+    sandpackFiles["/index.html"] = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    #root {
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    ${appContent.replace('import React from \'react\';', '').replace('export default App;', '')}
     
-    sandpackFiles["/index.js"] = `import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './src/App.js';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);`;
-    
-    // Add index.css file that AI might reference
-    sandpackFiles["/src/index.css"] = `/* Basic CSS reset and Tailwind base styles */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-/* Tailwind CSS is loaded via CDN, so this file just provides basic styles */`;
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+</html>`;
   } catch (error) {
-    console.error("Error creating essential files:", error);
+    console.error("Error creating HTML file:", error);
+    // Fallback HTML
+    sandpackFiles["/index.html"] = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React App</title>
+</head>
+<body>
+  <div id="root">
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+      <h1>Error loading React app</h1>
+    </div>
+  </div>
+</body>
+</html>`;
   }
   
      console.log("Final sandpack files:", Object.keys(sandpackFiles));
@@ -286,12 +272,9 @@ code {
       <div className="flex-1 min-h-0">
         <SandpackProvider
           key={sandpackKey}
-          template="react"
+          template="vanilla"
           files={sandpackFiles}
           theme="light"
-          options={{
-            externalResources: ["https://cdn.tailwindcss.com"]
-          }}
           style={{ height: "100%", display: "flex", flexDirection: "column" }}
         >
           <SandpackPreview 
