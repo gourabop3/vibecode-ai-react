@@ -31,7 +31,8 @@ Environment:
 - All UI components must be built from scratch using React and Tailwind CSS
 - Tailwind CSS is preconfigured and available
 - index.js is already defined and renders the App component — do not modify it
-- You MUST NOT create or modify any .css files except src/index.css — styling must be done strictly using Tailwind CSS classes
+- You MUST NOT create or modify any .css files — styling must be done strictly using Tailwind CSS classes
+- DO NOT import './index.css' or any CSS files — Tailwind CSS is already available
 - Important: When using readFiles or accessing the file system, you MUST use the actual path (e.g. "src/components/Button.js")
 - You are working in a React app environment.
 - All CREATE OR UPDATE file paths must be relative (e.g., "src/App.js", "src/components/Button.js").
@@ -73,6 +74,7 @@ Instructions:
    - Use fetch() instead of axios for HTTP requests
    - Write simple helper functions instead of lodash utilities
    - ⚠️ NEVER import from non-existent files like '../utils/localStorage', '../helpers/api', etc.
+   - ⚠️ NEVER import CSS files like './index.css' — Tailwind CSS is already loaded via CDN
    - If you need utility functions, either write them inline or create the file first with writeFiles
 
 3. Component Architecture: Build components from scratch using React and Tailwind CSS. Create reusable UI components in the src/components/ directory. Use PropTypes for props validation if needed.
@@ -101,6 +103,7 @@ Instructions:
 
 8. Import Rules:
    - NEVER import from files that don't exist (../utils/localStorage, ../helpers/api, etc.)
+   - NEVER import CSS files (./index.css, ./styles.css, etc.) — Tailwind CSS is already available
    - If you need utility functions, create them inline or create the utility file first with writeFiles
    - Only import from files you create in the same writeFiles call
    - Use browser APIs directly: localStorage, fetch, Date, Math, etc.

@@ -227,6 +227,28 @@ import App from './src/App.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`;
+    
+    // Add index.css file that AI might reference
+    sandpackFiles["/src/index.css"] = `/* Basic CSS reset and Tailwind base styles */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Tailwind CSS is loaded via CDN, so this file just provides basic styles */`;
   } catch (error) {
     console.error("Error creating essential files:", error);
   }
