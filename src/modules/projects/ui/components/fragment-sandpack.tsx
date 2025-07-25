@@ -198,13 +198,14 @@ export default App;`;
     sandpackFiles[`/${sandpackPath}`] = sandpackContent;
   });
   
-  // Add essential React files with minimal, reliable packages
+  // Add essential React files with Sandpack-compatible packages
   sandpackFiles["/package.json"] = JSON.stringify({
     dependencies: {
       react: "^18.0.0",
       "react-dom": "^18.0.0",
       uuid: "^9.0.0",
-      clsx: "^2.0.0"
+      clsx: "^2.0.0",
+      "date-fns": "^2.30.0"
     }
   }, null, 2);
   
@@ -234,30 +235,12 @@ root.render(<App />);`;
       <div className="flex-1">
         <SandpackProvider
           key={sandpackKey}
-          template="vanilla"
-          files={{
-            "/index.html": `<!DOCTYPE html>
-<html>
-<head>
-  <title>React App</title>
-  <meta charset="UTF-8" />
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    ${appContent.replace(/import.*from.*['"];?\n/g, '').replace('export default App;', '')}
-    
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App));
-  </script>
-</body>
-</html>`
-          }}
+          template="react"
+          files={sandpackFiles}
           theme="light"
+          options={{
+            externalResources: ["https://cdn.tailwindcss.com"]
+          }}
         >
           <SandpackPreview 
             showOpenInCodeSandbox={false}
