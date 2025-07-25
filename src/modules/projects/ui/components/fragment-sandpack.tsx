@@ -293,8 +293,6 @@ code {
             showOpenInCodeSandbox={false}
             showRefreshButton={false}
             style={{ height: "100%", width: "100%", flex: 1 }}
-            onLoadStart={() => console.log("🔄 Sandpack loading started")}
-            onLoadEnd={() => console.log("✅ Sandpack loaded successfully")}
           />
         </SandpackProvider>
       </div>
