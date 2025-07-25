@@ -238,6 +238,9 @@ export default App;`);
         react: "^18.0.0",
         "react-dom": "^18.0.0",
         "react-scripts": "5.0.1",
+        tailwindcss: "^3.3.0",
+        autoprefixer: "^10.4.14",
+        postcss: "^8.4.24",
         uuid: "^9.0.0",
         clsx: "^2.0.0",
         "date-fns": "^2.30.0"
@@ -270,55 +273,38 @@ root.render(
   </React.StrictMode>
 );`;
 
-    // index.css with reliable base styles
-    const indexCss = `/* Modern CSS Reset */
-*, *::before, *::after {
-  box-sizing: border-box;
+    // index.css - Exactly like Bolt.new clones
+    const indexCss = `@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Base styles */
+* {
   margin: 0;
   padding: 0;
-}
-
-html, body {
-  height: 100%;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: #333;
 }
 
 #root {
   min-height: 100vh;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
 }`;
 
-        // public/index.html with reliable Tailwind CDN
+        // public/index.html - Clean like Bolt clones
     const indexHtml = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="React app created with AI" />
+    <meta name="description" content="Web site created using create-react-app" />
     <title>React App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {}
-        }
-      }
-    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
