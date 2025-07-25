@@ -601,18 +601,7 @@ body {
                  key={sandpackKey}
                  template="react"
                  files={{
-                   "/src/App.js": (() => {
-                     const aiAppContent = validatedSandpackFiles["/src/App.js"];
-                     if (aiAppContent) {
-                       // Ensure the AI content imports index.css
-                       let content = aiAppContent;
-                       if (!content.includes('import \'./index.css\'') && !content.includes('import "./index.css"')) {
-                         content = content.replace('import React from \'react\';', 'import React from \'react\';\nimport \'./index.css\';');
-                       }
-                       return content;
-                     }
-                     return `import React from 'react';
-import './index.css';
+                   "/src/App.js": validatedSandpackFiles["/src/App.js"] || `import React from 'react';
 
 function App() {
   return (
@@ -637,14 +626,25 @@ function App() {
   );
 }
 
-export default App;`;
-                   })(),
-                   "/src/index.js": validatedSandpackFiles["/src/index.js"] || `import React from 'react';
+export default App;`,
+                   "/src/index.js": (() => {
+                     const aiIndexContent = validatedSandpackFiles["/src/index.js"];
+                     if (aiIndexContent) {
+                       // Ensure the AI index.js imports index.css
+                       let content = aiIndexContent;
+                       if (!content.includes('import \'./index.css\'') && !content.includes('import "./index.css"')) {
+                         content = content.replace('import ReactDOM from \'react-dom/client\';', 'import ReactDOM from \'react-dom/client\';\nimport \'./index.css\';');
+                       }
+                       return content;
+                     }
+                     return `import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);`,
+root.render(<App />);`;
+                   })(),
                    "/public/index.html": `<!DOCTYPE html>
 <html lang="en">
   <head>
