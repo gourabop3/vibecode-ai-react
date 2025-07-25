@@ -25,45 +25,88 @@ export const codeAgentFunction = inngest.createFunction(
     async ({ event, step }) => {
 
         const sandboxId = await step.run("get-sandbox-id", async () => {
-            const sandbox = await Sandbox.create(); // Use default template for React app
-            return sandbox.sandboxId
+            try {
+                const sandbox = await Sandbox.create(); // Use default template for React app
+                console.log("Created E2B sandbox:", sandbox.sandboxId);
+                return sandbox.sandboxId;
+            } catch (error) {
+                console.error("Failed to create E2B sandbox:", error);
+                throw error;
+            }
         });
 
         await step.run("setup-react-app", async () => {
-            const sandbox = await getSandbox(sandboxId);
+            try {
+                const sandbox = await getSandbox(sandboxId);
+                console.log("Setting up React app in sandbox:", sandboxId);
             
-            // Create React app structure
-            await sandbox.commands.run("npx create-react-app . --template typescript --yes", {
-                onStdout: (data) => console.log(data),
-                onStderr: (data) => console.error(data)
-            });
+            // Create basic React app structure with files
+            const packageJson = {
+                name: "react-app",
+                version: "0.1.0",
+                private: true,
+                dependencies: {
+                    "react": "^18.2.0",
+                    "react-dom": "^18.2.0",
+                    "react-scripts": "5.0.1",
+                    "typescript": "^4.4.2",
+                    "tailwindcss": "^3.3.0",
+                    "autoprefixer": "^10.4.14",
+                    "postcss": "^8.4.24",
+                    "@tailwindcss/forms": "^0.5.3",
+                    "@tailwindcss/typography": "^0.5.9",
+                    "lucide-react": "^0.263.1",
+                    "class-variance-authority": "^0.7.0",
+                    "clsx": "^1.2.1",
+                    "tailwind-merge": "^1.13.2"
+                },
+                scripts: {
+                    start: "react-scripts start",
+                    build: "react-scripts build",
+                    test: "react-scripts test",
+                    eject: "react-scripts eject"
+                },
+                browserslist: {
+                    production: [">0.2%", "not dead", "not op_mini all"],
+                    development: ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+                }
+            };
+
+            // Write package.json
+            await sandbox.files.write("package.json", JSON.stringify(packageJson, null, 2));
             
-            // Install additional packages
-            await sandbox.commands.run("npm install tailwindcss @tailwindcss/forms @tailwindcss/typography autoprefixer postcss lucide-react class-variance-authority clsx tailwind-merge --yes", {
-                onStdout: (data) => console.log(data),
-                onStderr: (data) => console.error(data)
-            });
-            
-            // Initialize Tailwind CSS
-            await sandbox.commands.run("npx tailwindcss init -p", {
-                onStdout: (data) => console.log(data),
-                onStderr: (data) => console.error(data)
-            });
-            
-            // Update tailwind.config.js
-            await sandbox.files.write("tailwind.config.js", `/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
-  theme: {
-    extend: {},
-  },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
-}`);
-            
-            // Update src/index.css
+            // Create public/index.html
+            await sandbox.files.write("public/index.html", `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="React app created with AI" />
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>`);
+
+            // Create src/index.tsx
+            await sandbox.files.write("src/index.tsx", `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);`);
+
+            // Create src/index.css with Tailwind
             await sandbox.files.write("src/index.css", `@tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -81,6 +124,67 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }`);
+
+            // Create src/App.tsx
+            await sandbox.files.write("src/App.tsx", `import React from 'react';
+
+function App() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          Welcome to Your React App
+        </h1>
+        <p className="text-lg text-gray-600">
+          Start building something amazing!
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default App;`);
+
+            // Create tailwind.config.js
+            await sandbox.files.write("tailwind.config.js", `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
+}`);
+
+            // Create tsconfig.json
+            await sandbox.files.write("tsconfig.json", `{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["src"]
+}`);
+
+            // Install dependencies
+            await sandbox.commands.run("npm install", {
+                onStdout: (data) => console.log("npm install:", data),
+                onStderr: (data) => console.error("npm install error:", data)
+            });
             
             return "React app setup complete";
         });
@@ -288,15 +392,17 @@ code {
         const sandboxUrl = await step.run("get-sandbox-url", async () => {
             const sandbox = await getSandbox(sandboxId);
             
-            // Start the React development server
-            await sandbox.commands.run("npm start", {
+            // Start the React development server in background
+            sandbox.commands.run("npm start", {
                 background: true,
                 onStdout: (data) => console.log("React server:", data),
                 onStderr: (data) => console.error("React server error:", data)
+            }).catch((error) => {
+                console.error("Failed to start React server:", error);
             });
             
-            // Wait a moment for the server to start
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // Wait for the server to start
+            await new Promise(resolve => setTimeout(resolve, 5000));
             
             const host = sandbox.getHost(3000);
             return `https://${host}`;
