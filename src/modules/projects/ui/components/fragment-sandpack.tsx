@@ -229,7 +229,7 @@ export default App;`);
 
   // Add COMPLETE React project files
   try {
-    // package.json with full React setup
+    // package.json with full React setup including Tailwind CSS
     const packageJson = {
       name: "react-app",
       version: "0.1.0",
@@ -292,8 +292,7 @@ body {
 }
 
 #root {
-  min-height: 100vh;
-}`;
+  min-height: 100vh;}`;
 
         // public/index.html - Clean like Bolt clones
     const indexHtml = `<!DOCTYPE html>
@@ -328,6 +327,14 @@ module.exports = {
   },
   plugins: [],
   darkMode: 'class',
+}`;
+
+    // postcss.config.js
+    const postcssConfig = `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
 }`;
 
     // .gitignore
@@ -388,6 +395,8 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
     newSandpackFiles["/src/index.js"] = indexJs;
     newSandpackFiles["/src/index.css"] = indexCss;
     newSandpackFiles["/public/index.html"] = indexHtml;
+    newSandpackFiles["/tailwind.config.js"] = tailwindConfig;
+    newSandpackFiles["/postcss.config.js"] = postcssConfig;
 
     newSandpackFiles["/.gitignore"] = gitignore;
     newSandpackFiles["/README.md"] = readme;
