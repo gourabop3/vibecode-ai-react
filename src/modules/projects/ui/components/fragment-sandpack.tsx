@@ -176,6 +176,15 @@ export default App;`;
   sandpackFiles["/App.js"] = appContent;
   
   console.log("Final app content being used:", appContent);
+  
+  // TEMPORARY TEST: Force some content to see if Sandpack works
+  if (appContent.includes("Welcome to Your React App")) {
+    console.log("⚠️ USING DEFAULT CONTENT - AI files not detected!");
+    console.log("Fragment object:", fragment);
+    console.log("Files available:", files ? Object.keys(files) : "No files");
+  } else {
+    console.log("✅ USING AI-GENERATED CONTENT");
+  }
 
   return (
     <div className="flex flex-col h-full w-full">
