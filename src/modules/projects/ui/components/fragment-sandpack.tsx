@@ -103,34 +103,27 @@ export const FragmentSandpack = ({
   const sandpackFiles: { [key: string]: string } = useMemo(() => {
     const newSandpackFiles: { [key: string]: string } = {};
   
-  // Default App component - create new string to avoid any readonly issues
+  // Default App component with Tailwind CSS classes
   let appContent = String(`import React from 'react';
 
 function App() {
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      fontFamily: 'system-ui, sans-serif',
-      backgroundColor: '#f9fafb'
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <h1 style={{ 
-          fontSize: '2rem', 
-          fontWeight: 'bold', 
-          color: '#111827',
-          marginBottom: '1rem'
-        }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
+      <div className="text-center px-4">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
           Welcome to Your React App
         </h1>
-        <p style={{ 
-          fontSize: '1.125rem', 
-          color: '#6b7280' 
-        }}>
+        <p className="text-lg text-gray-600 mb-8">
           Start building something amazing!
         </p>
+        <div className="flex gap-4 justify-center">
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Get Started
+          </button>
+          <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors">
+            Learn More
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -277,10 +270,17 @@ root.render(
   </React.StrictMode>
 );`;
 
-    // index.css with Tailwind imports
-    const indexCss = `@tailwind base;
-@tailwind components;
-@tailwind utilities;
+    // index.css with proper base styles (no Tailwind imports since we use CDN)
+    const indexCss = `/* Modern CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
 
 body {
   margin: 0;
@@ -289,6 +289,11 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 code {
@@ -296,8 +301,25 @@ code {
     monospace;
 }
 
-* {
-  box-sizing: border-box;
+/* Ensure Tailwind utilities work properly */
+.min-h-screen {
+  min-height: 100vh !important;
+}
+
+.flex {
+  display: flex !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+.text-center {
+  text-align: center !important;
 }`;
 
     // public/index.html
@@ -306,11 +328,62 @@ code {
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="React app created with AI" />
     <title>React App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configure Tailwind for better compatibility
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            }
+          }
+        },
+        corePlugins: {
+          preflight: true,
+        },
+        important: true
+      }
+    </script>
+    <style>
+      /* Ensure base styles are applied immediately */
+      body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+      #root { min-height: 100vh; }
+      
+      /* Force key Tailwind classes to work */
+      .min-h-screen { min-height: 100vh !important; }
+      .bg-gray-50 { background-color: #f9fafb !important; }
+      .bg-white { background-color: #ffffff !important; }
+      .bg-blue-600 { background-color: #2563eb !important; }
+      .bg-blue-700 { background-color: #1d4ed8 !important; }
+      .text-gray-900 { color: #111827 !important; }
+      .text-gray-600 { color: #4b5563 !important; }
+      .text-white { color: #ffffff !important; }
+      .flex { display: flex !important; }
+      .items-center { align-items: center !important; }
+      .justify-center { justify-content: center !important; }
+      .text-center { text-align: center !important; }
+      .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
+      .px-6 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+      .py-3 { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
+      .mb-4 { margin-bottom: 1rem !important; }
+      .mb-8 { margin-bottom: 2rem !important; }
+      .rounded-lg { border-radius: 0.5rem !important; }
+      .font-bold { font-weight: 700 !important; }
+      .font-medium { font-weight: 500 !important; }
+      .text-4xl { font-size: 2.25rem !important; line-height: 2.5rem !important; }
+      .text-lg { font-size: 1.125rem !important; line-height: 1.75rem !important; }
+      .transition-colors { transition-property: color, background-color, border-color !important; transition-duration: 0.15s !important; }
+      .hover\\:bg-blue-700:hover { background-color: #1d4ed8 !important; }
+      .hover\\:bg-gray-50:hover { background-color: #f9fafb !important; }
+      .border { border-width: 1px !important; }
+      .border-gray-300 { border-color: #d1d5db !important; }
+      .gap-4 { gap: 1rem !important; }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

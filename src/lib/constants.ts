@@ -3,13 +3,13 @@ export const PROJECT_TEMPLATES = [
     image: "/templates/netflix-template.avif",
     title: "Build a Netflix clone",
     prompt:
-      "Build a Netflix-style homepage with a hero banner (use a nice, dark-mode compatible gradient here), movie sections, responsive cards, and a modal for viewing details using mock data and local state. Use dark mode.",
+      "Build a modern Netflix-style homepage with a centered hero banner, movie sections with responsive card grids, and a modal for viewing details. Use dark mode with proper centering (min-h-screen flex items-center justify-center) and modern Tailwind styling. Include hover effects and smooth transitions.",
   },
   {
     image: "/templates/admin-panel-template.avif",
     title: "Build an admin dashboard",
     prompt:
-      "Create an admin dashboard with a sidebar, stat cards, a chart placeholder, and a basic table with filter and pagination using local state. Use clear visual grouping and balance in your design for a modern, professional look.",
+      "Create a modern admin dashboard with proper centering and layout. Use min-h-screen bg-gray-50 with a centered container, sidebar navigation, stat cards with shadows, chart placeholders, and a responsive table. Include modern Tailwind styling with proper spacing, rounded corners, and hover effects.",
   },
   {
     image: "/templates/kanban-board-template.avif",
