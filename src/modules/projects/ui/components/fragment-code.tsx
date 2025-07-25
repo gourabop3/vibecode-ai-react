@@ -16,31 +16,27 @@ export const FragmentCode = ({
   // Create complete React app structure (same as Sandpack)
   const completeReactFiles: { [path: string]: string } = {};
   
-  // Add package.json
+  // Add complete package.json (matching Sandpack)
   completeReactFiles["package.json"] = JSON.stringify({
     name: "react-app",
     version: "0.1.0",
     private: true,
     dependencies: {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
+      react: "^18.0.0",
+      "react-dom": "^18.0.0",
       "react-scripts": "5.0.1",
-      "typescript": "^4.4.2",
-      "tailwindcss": "^3.3.0",
-      "autoprefixer": "^10.4.14",
-      "postcss": "^8.4.24",
-      "@tailwindcss/forms": "^0.5.3",
-      "@tailwindcss/typography": "^0.5.9",
-      "lucide-react": "^0.263.1",
-      "class-variance-authority": "^0.7.0",
-      "clsx": "^1.2.1",
-      "tailwind-merge": "^1.13.2"
+      uuid: "^9.0.0",
+      clsx: "^2.0.0",
+      "date-fns": "^2.30.0"
     },
     scripts: {
       start: "react-scripts start",
       build: "react-scripts build",
       test: "react-scripts test",
       eject: "react-scripts eject"
+    },
+    eslintConfig: {
+      extends: ["react-app", "react-app/jest"]
     },
     browserslist: {
       production: [">0.2%", "not dead", "not op_mini all"],
@@ -53,10 +49,12 @@ export const FragmentCode = ({
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="React app created with AI" />
     <title>React App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -70,28 +68,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Root element not found');
-}
-
-const root = ReactDOM.createRoot(rootElement);
-
-try {
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-} catch (error) {
-  console.error('Error rendering app:', error);
-  root.render(
-    <div>
-      <h1>Error loading app</h1>
-      <p>Please check the console for details.</p>
-    </div>
-  );
-}`;
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);`;
 
   // Add src/index.css with Tailwind
   completeReactFiles["src/index.css"] = `@tailwind base;
@@ -110,20 +92,78 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+* {
+  box-sizing: border-box;
 }`;
 
   // Add tailwind.config.js
   completeReactFiles["tailwind.config.js"] = `/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,jsx}"],
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./public/index.html",
+  ],
   theme: {
     extend: {},
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
+  plugins: [],
+  darkMode: 'class',
 }`;
+
+  // Add .gitignore
+  completeReactFiles[".gitignore"] = `# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*`;
+
+  // Add README.md
+  completeReactFiles["README.md"] = `# React App
+
+This project was created with AI and uses React 18 with Tailwind CSS.
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### \`npm start\`
+
+Runs the app in development mode.
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+### \`npm run build\`
+
+Builds the app for production to the \`build\` folder.
+
+### \`npm test\`
+
+Launches the test runner in interactive watch mode.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).`;
 
   // Add default App.js if not present
   const defaultAppContent = `import React from 'react';
