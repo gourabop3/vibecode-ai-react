@@ -69,6 +69,8 @@ const Tree = ({
 
   const [name, ...items] = Array.isArray(item) ? item : [item];
   const currentPath = parentPath ? `${parentPath}/${name}` : name;
+  
+  console.log("Tree item:", { name, parentPath, currentPath, isFile: !items.length });
 
 
   if (!items.length) {

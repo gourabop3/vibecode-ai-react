@@ -38,6 +38,9 @@ export const FileExplorer = ({
   }, [files]);
 
   const handleFileSelect = useCallback((filePath: string)=>{
+    console.log("File selected:", filePath);
+    console.log("Available files:", Object.keys(files));
+    console.log("File exists:", !!files[filePath]);
     if (files[filePath]) {
       setSelectedFile(filePath);
     }

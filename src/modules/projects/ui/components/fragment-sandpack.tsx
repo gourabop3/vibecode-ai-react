@@ -84,7 +84,7 @@ export const FragmentSandpack = ({
   console.log("Processed files object:", files);
   
   // Create a stable key for Sandpack to prevent re-renders and readonly issues
-  const sandpackKey = `sandpack-${String(fragment.id || 'default')}-${Object.keys(files || {}).length}-${Date.now()}`;
+  const sandpackKey = `sandpack-${String(fragment.id || 'default')}-${Object.keys(files || {}).length}`;
   
   // Create minimal sandpack files
   const sandpackFiles: { [key: string]: string } = {};
@@ -399,10 +399,10 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
   }
 
   return (
-    <div className="flex flex-col h-full w-full min-h-0">
+    <div className="flex flex-col h-full w-full">
       <SandpackToolbar />
       
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 h-full">
         <SandpackProvider
           key={sandpackKey}
           template="react"
@@ -412,10 +412,12 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
             visibleFiles: ["/src/App.js", "/src/index.js"],
             activeFile: "/src/App.js"
           }}
+          style={{ height: "100%" }}
         >
           <SandpackPreview 
             showOpenInCodeSandbox={false}
             showRefreshButton={false}
+            style={{ height: "100%" }}
           />
         </SandpackProvider>
       </div>
