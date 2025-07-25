@@ -17,10 +17,9 @@ import {
 import { MessagesContainer } from "../components/messages-container";
 import { Fragment } from "@/generated/prisma";
 import { Header } from "../components/header";
-import { FragmentWeb } from "../components/fragment-web";
-import { CodeIcon, CrownIcon, EyeIcon } from "lucide-react";
+import { FragmentSandpack } from "../components/fragment-sandpack";
+import { CrownIcon, EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FileExplorer } from "@/components/file-explorer";
 import { UserControl } from "@/components/user-control";
 import { useAuth } from "@clerk/nextjs";
 import { Loader } from "@/components/ui/loader";
@@ -38,7 +37,6 @@ export const ProjectView = ({
     plan : "pro"
   });
   const [activeFragment, setActiveFragment] = useState<Fragment | null>(null);
-  const [tabState, setTabState] = useState<"preview"|"code">("preview");
 
   return (
     <div className="h-full">
@@ -74,9 +72,7 @@ export const ProjectView = ({
               <TabsList className="h-8 p-0 border rounded-md">
                 <TabsTrigger value="preview" className="rounded-md">
                   <EyeIcon/>
-                </TabsTrigger>
-                <TabsTrigger value="code" className="rounded-md">
-                  <CodeIcon/>
+                  <span className="ml-1">Preview</span>
                 </TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-x-2">
@@ -99,19 +95,13 @@ export const ProjectView = ({
             <TabsContent value="preview">
               {
                 !!activeFragment && (
-                  <FragmentWeb
+                  <FragmentSandpack
                     fragment={activeFragment}
                   />
                 )
               }
             </TabsContent>
-            <TabsContent value="code" className="min-h-0">
-              {
-                !!activeFragment && (
-                  <FileExplorer files={activeFragment.files as { [path: string]: string }} />
-                )
-              }
-            </TabsContent>
+
           </Tabs>
         </ResizablePanel>
       </ResizablePanelGroup>

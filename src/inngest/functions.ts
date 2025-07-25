@@ -25,8 +25,64 @@ export const codeAgentFunction = inngest.createFunction(
     async ({ event, step }) => {
 
         const sandboxId = await step.run("get-sandbox-id", async () => {
-            const sandbox = await Sandbox.create("vibegourab"); // Use default template for compatibility
+            const sandbox = await Sandbox.create(); // Use default template for React app
             return sandbox.sandboxId
+        });
+
+        await step.run("setup-react-app", async () => {
+            const sandbox = await getSandbox(sandboxId);
+            
+            // Create React app structure
+            await sandbox.commands.run("npx create-react-app . --template typescript --yes", {
+                onStdout: (data) => console.log(data),
+                onStderr: (data) => console.error(data)
+            });
+            
+            // Install additional packages
+            await sandbox.commands.run("npm install tailwindcss @tailwindcss/forms @tailwindcss/typography autoprefixer postcss lucide-react class-variance-authority clsx tailwind-merge --yes", {
+                onStdout: (data) => console.log(data),
+                onStderr: (data) => console.error(data)
+            });
+            
+            // Initialize Tailwind CSS
+            await sandbox.commands.run("npx tailwindcss init -p", {
+                onStdout: (data) => console.log(data),
+                onStderr: (data) => console.error(data)
+            });
+            
+            // Update tailwind.config.js
+            await sandbox.files.write("tailwind.config.js", `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+  ],
+}`);
+            
+            // Update src/index.css
+            await sandbox.files.write("src/index.css", `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}`);
+            
+            return "React app setup complete";
         });
 
         const previousMessages = await step.run("get-previous-messages", async () => {
@@ -231,6 +287,17 @@ export const codeAgentFunction = inngest.createFunction(
 
         const sandboxUrl = await step.run("get-sandbox-url", async () => {
             const sandbox = await getSandbox(sandboxId);
+            
+            // Start the React development server
+            await sandbox.commands.run("npm start", {
+                background: true,
+                onStdout: (data) => console.log("React server:", data),
+                onStderr: (data) => console.error("React server error:", data)
+            });
+            
+            // Wait a moment for the server to start
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
             const host = sandbox.getHost(3000);
             return `https://${host}`;
         });
