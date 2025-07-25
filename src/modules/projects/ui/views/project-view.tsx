@@ -100,10 +100,14 @@ export const ProjectView = ({
             </div>
             <TabsContent value="preview">
               {
-                !!activeFragment && (
+                !!activeFragment ? (
                   <FragmentSandpack
                     fragment={activeFragment}
                   />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <p>No fragment selected. Generate a React app to see the preview.</p>
+                  </div>
                 )
               }
             </TabsContent>

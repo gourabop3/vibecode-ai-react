@@ -44,8 +44,28 @@ export const FragmentSandpack = ({
   fragment
 }: Props) => {
   
-  // Convert fragment files to Sandpack format
-  const files = fragment.files as { [path: string]: string };
+  // Convert fragment files to Sandpack format - handle different data structures
+  let files: { [path: string]: string } = {};
+  
+  console.log("Raw fragment object:", fragment);
+  console.log("Raw fragment.files:", fragment.files);
+  console.log("Type of fragment.files:", typeof fragment.files);
+  
+  // Handle different possible data formats
+  if (fragment.files) {
+    if (typeof fragment.files === 'string') {
+      try {
+        files = JSON.parse(fragment.files);
+      } catch (e) {
+        console.error("Failed to parse fragment.files as JSON:", e);
+        files = {};
+      }
+    } else if (typeof fragment.files === 'object') {
+      files = fragment.files as { [path: string]: string };
+    }
+  }
+  
+  console.log("Processed files object:", files);
   
   // Create a stable key for Sandpack to prevent re-renders
   const sandpackKey = JSON.stringify(Object.keys(files || {})).substring(0, 20);

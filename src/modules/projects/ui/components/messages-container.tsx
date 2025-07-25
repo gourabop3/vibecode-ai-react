@@ -28,6 +28,9 @@ export const MessagesContainer = ({
 
   useEffect(()=>{
     const lastAssistantMessage = messages.findLast(message => message.role === "ASSISTANT");
+    console.log("Last assistant message:", lastAssistantMessage);
+    console.log("Fragment from last assistant message:", lastAssistantMessage?.fragment);
+    
     if (lastAssistantMessage) {
       setActiveFragment(lastAssistantMessage.fragment);
     }
