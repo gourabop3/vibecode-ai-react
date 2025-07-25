@@ -44,16 +44,6 @@ export const FragmentSandpack = ({
   fragment
 }: Props) => {
   
-  // Early validation - ensure fragment exists
-  if (!fragment) {
-    console.error("FragmentSandpack: No fragment provided");
-    return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
-        <p>No fragment available for preview.</p>
-      </div>
-    );
-  }
-  
   // Completely isolate and clone all fragment data to prevent readonly issues
   const safeFragment = useMemo(() => {
     try {
@@ -489,6 +479,16 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
     
     return validated;
   }, [sandpackFiles]);
+
+  // Validation check after all hooks - ensure fragment exists
+  if (!fragment) {
+    console.error("FragmentSandpack: No fragment provided");
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        <p>No fragment available for preview.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full w-full">
