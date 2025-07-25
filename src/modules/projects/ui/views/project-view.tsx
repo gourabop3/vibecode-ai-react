@@ -18,7 +18,7 @@ import { MessagesContainer } from "../components/messages-container";
 import { Fragment } from "@/generated/prisma";
 import { Header } from "../components/header";
 import { FragmentSandpack } from "../components/fragment-sandpack";
-import { CrownIcon, EyeIcon } from "lucide-react";
+import { CodeIcon, CrownIcon, EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserControl } from "@/components/user-control";
 import { useAuth } from "@clerk/nextjs";
@@ -37,6 +37,7 @@ export const ProjectView = ({
     plan : "pro"
   });
   const [activeFragment, setActiveFragment] = useState<Fragment | null>(null);
+  const [tabState, setTabState] = useState<"preview"|"code">("preview");
 
   return (
     <div className="h-full">
@@ -73,6 +74,10 @@ export const ProjectView = ({
                 <TabsTrigger value="preview" className="rounded-md">
                   <EyeIcon/>
                   <span className="ml-1">Preview</span>
+                </TabsTrigger>
+                <TabsTrigger value="code" className="rounded-md">
+                  <CodeIcon/>
+                  <span className="ml-1">Code</span>
                 </TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-x-2">
