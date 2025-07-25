@@ -696,7 +696,7 @@ body {
       <SandpackToolbar />
       
       <div className="flex-1 min-h-0 h-full">
-                {(() => {
+        {(() => {
           try {
             const allFiles = {
               // Include ALL validated files (this includes all AI-generated components)
@@ -784,23 +784,23 @@ body {
             console.log("🎯 COMPONENT FILES:", Object.keys(allFiles).filter(f => f.includes('components')));
             
             return (
-                             <SandpackProvider
-                 key={sandpackKey}
-                 template="react"
-                 files={allFiles}}
-                 theme="light"
+              <SandpackProvider
+                key={sandpackKey}
+                template="react"
+                files={allFiles}
+                                 theme="light"
                  options={{
                    visibleFiles: ["/src/App.js"],
                    activeFile: "/src/App.js"
                  }}
                  style={{ height: "100%" }}
-              >
-                <SandpackPreview 
-                  showOpenInCodeSandbox={false}
-                  showRefreshButton={false}
-                  style={{ height: "100%" }}
-                />
-              </SandpackProvider>
+               >
+                 <SandpackPreview 
+                   showOpenInCodeSandbox={false}
+                   showRefreshButton={false}
+                   style={{ height: "100%" }}
+                 />
+               </SandpackProvider>
             );
           } catch (error) {
             console.error("🚨 SANDPACK PROVIDER ERROR:", error);
