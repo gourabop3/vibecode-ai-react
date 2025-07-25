@@ -98,7 +98,7 @@ export const ProjectView = ({
                 <UserControl/>
               </div>
             </div>
-            <TabsContent value="preview">
+            <TabsContent value="preview" className="h-full flex-1">
               {
                 !!activeFragment ? (
                   <FragmentSandpack

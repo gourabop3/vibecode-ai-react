@@ -229,10 +229,10 @@ root.render(<App />);`;
   }
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full min-h-0">
       <SandpackToolbar />
       
-      <div className="flex-1 h-full">
+      <div className="flex-1 min-h-0">
         <SandpackProvider
           key={sandpackKey}
           template="react"
@@ -241,12 +241,12 @@ root.render(<App />);`;
           options={{
             externalResources: ["https://cdn.tailwindcss.com"]
           }}
-          style={{ height: "100%" }}
+          style={{ height: "100%", display: "flex", flexDirection: "column" }}
         >
           <SandpackPreview 
             showOpenInCodeSandbox={false}
             showRefreshButton={false}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: "100%", width: "100%", flex: 1 }}
           />
         </SandpackProvider>
       </div>
