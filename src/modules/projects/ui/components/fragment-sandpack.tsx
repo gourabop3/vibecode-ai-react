@@ -115,6 +115,8 @@ export const FragmentSandpack = ({
       processedFiles = {};
     }
     
+    console.log("📊 PROCESSED FILES:", processedFiles);
+    console.log("📊 PROCESSED FILES KEYS:", Object.keys(processedFiles));
     return processedFiles;
   }, [safeFragment]);
   
@@ -127,8 +129,86 @@ export const FragmentSandpack = ({
   const sandpackFiles: { [key: string]: string } = useMemo(() => {
     const newSandpackFiles: { [key: string]: string } = {};
   
-  // Default App component with Tailwind CSS classes
-  let appContent = String(`import React from 'react';
+  // Start with default, but will be replaced if AI content exists
+  let appContent = '';
+  let hasAIGeneratedContent = false;
+
+  // Process fragment files if they exist
+  console.log("🔍 Processing fragment files:", files);
+  console.log("🔍 Files object keys:", Object.keys(files || {}));
+  console.log("🔍 Files object length:", Object.keys(files || {}).length);
+  
+  if (files && Object.keys(files).length > 0) {
+    hasAIGeneratedContent = true;
+    
+    // Look for App component in various locations and path formats
+    const appFile = files["App.tsx"] || files["src/App.tsx"] || files["App.js"] || files["src/App.js"] ||
+                   files["/src/App.tsx"] || files["/src/App.js"] || files["/App.tsx"] || files["/App.js"] ||
+                   files["app.tsx"] || files["app.js"];
+    
+    console.log("🔍 Available files:", Object.keys(files));
+    console.log("🔍 Found app file:", !!appFile);
+    console.log("🔍 App file content preview:", appFile ? String(appFile).substring(0, 200) + "..." : "None");
+    
+    if (appFile && String(appFile).trim()) {
+      // Use AI-generated app content
+      appContent = String(appFile).trim();
+      
+      // Ensure React import
+      if (!appContent.includes('import React')) {
+        appContent = `import React from 'react';\n\n${appContent}`;
+      }
+      
+      // Ensure export
+      if (!appContent.includes('export default')) {
+        const componentMatch = appContent.match(/(?:function|const|class)\s+(\w+)/);
+        if (componentMatch) {
+          const componentName = componentMatch[1];
+          appContent += `\n\nexport default ${componentName};`;
+        } else {
+          appContent += '\n\nexport default App;';
+        }
+      }
+      
+      console.log("✅ Using AI-generated App component");
+    } else {
+      console.log("🔍 No main App file found, searching for other React components...");
+      // If no main App file, try to use any React component
+      const reactFiles = Object.entries(files).filter(([path, content]) => 
+        content && (content.includes('function ') || content.includes('const ') || content.includes('class ')) &&
+        (path.endsWith('.tsx') || path.endsWith('.jsx') || path.endsWith('.js'))
+      );
+      
+      console.log("🔍 Found React files:", reactFiles.map(([path]) => path));
+      
+      if (reactFiles.length > 0) {
+        const [, componentContent] = reactFiles[0];
+        appContent = String(componentContent).trim();
+        
+        // Ensure React import
+        if (!appContent.includes('import React')) {
+          appContent = `import React from 'react';\n\n${appContent}`;
+        }
+        
+        // Find component name and set as default export
+        const componentMatch = appContent.match(/(?:function|const|class)\s+(\w+)/);
+        if (componentMatch && !appContent.includes('export default')) {
+          const componentName = componentMatch[1];
+          appContent += `\n\nexport default ${componentName};`;
+        }
+        
+        console.log("✅ Using first React component found as App");
+      } else {
+        console.log("❌ No React components found in AI files");
+        hasAIGeneratedContent = false;
+      }
+    }
+  }
+
+  // Only use default if no AI content was found
+  if (!hasAIGeneratedContent || !appContent.trim()) {
+    console.log("⚠️ Using default app content - no AI generated content detected");
+    appContent = `import React from 'react';
 
 function App() {
   return (
@@ -153,74 +233,9 @@ function App() {
   );
 }
 
-export default App;`);
-
-  // Process fragment files if they exist
-  console.log("Fragment files:", files);
-  console.log("Files object keys:", Object.keys(files || {}));
-  console.log("Files object length:", Object.keys(files || {}).length);
-  
-  if (files && Object.keys(files).length > 0) {
-    // Look for App component in various locations and path formats
-    const appFile = files["App.tsx"] || files["src/App.tsx"] || files["App.js"] || files["src/App.js"] ||
-                   files["/src/App.tsx"] || files["/src/App.js"] || files["/App.tsx"] || files["/App.js"] ||
-                   files["app.tsx"] || files["app.js"];
-    
-    console.log("Available files:", Object.keys(files));
-    console.log("Found app file:", appFile);
-    
-    if (appFile && String(appFile).trim()) {
-      // Ensure we're working with a string copy to avoid readonly issues
-      appContent = String(appFile);
-      
-      // Ensure React import
-      if (!appContent.includes('import React')) {
-        appContent = `import React from 'react';\n\n${appContent}`;
-      }
-      
-      // Ensure export
-      if (!appContent.includes('export default')) {
-        const componentMatch = appContent.match(/(?:function|const|class)\s+(\w+)/);
-        if (componentMatch) {
-          const componentName = componentMatch[1];
-          appContent += `\n\nexport default ${componentName};`;
-        } else {
-          appContent += '\n\nexport default App;';
-        }
-      }
-      
-      console.log("✅ Using AI-generated app content");
-    } else {
-      console.log("❌ No main App file found, searching for other React components...");
-      // If no main App file, try to use any React component
-      const reactFiles = Object.entries(files).filter(([path, content]) => 
-        content && (content.includes('function ') || content.includes('const ') || content.includes('class ')) &&
-        (path.endsWith('.tsx') || path.endsWith('.jsx') || path.endsWith('.js'))
-      );
-      
-      console.log("Found React files:", reactFiles.map(([path]) => path));
-      
-      if (reactFiles.length > 0) {
-        const [, componentContent] = reactFiles[0];
-        appContent = componentContent;
-        
-        // Ensure React import
-        if (!appContent.includes('import React')) {
-          appContent = `import React from 'react';\n\n${appContent}`;
-        }
-        
-        // Find component name and set as default export
-        const componentMatch = appContent.match(/(?:function|const|class)\s+(\w+)/);
-        if (componentMatch && !appContent.includes('export default')) {
-          const componentName = componentMatch[1];
-          appContent += `\n\nexport default ${componentName};`;
-        }
-        
-        console.log("Using first React component found");
-      } else {
-        console.log("No React components found, using default");
-      }
-    }
+export default App;`;
+  } else {
+    console.log("🎉 Successfully found AI-generated content!");
   }
 
   // Process all AI-generated files for React template
@@ -558,13 +573,15 @@ body {
       console.log("🔍 VALIDATING CONTENT:", { contentType: typeof content, contentLength: String(content || '').length });
       
       // Ensure path is valid and not one of our defaults
-      if (path && typeof path === 'string' && path.trim() && !validated[path.trim()]) {
+      if (path && typeof path === 'string' && path.trim()) {
         const cleanPath = path.trim();
         const cleanContent = typeof content === 'string' ? content : String(content || '');
+        // Always override with AI content if available
         validated[cleanPath] = cleanContent;
         console.log("✅ ADDED AI FILE TO VALIDATED:", cleanPath);
+        console.log("✅ CONTENT PREVIEW:", cleanContent.substring(0, 150) + "...");
       } else {
-        console.error("❌ SKIPPING INVALID OR DUPLICATE PATH:", { path, pathType: typeof path, content: typeof content });
+        console.error("❌ SKIPPING INVALID PATH:", { path, pathType: typeof path, content: typeof content });
       }
     });
     
@@ -588,6 +605,7 @@ body {
   console.log("🚀 ABOUT TO RENDER SANDPACK WITH FILES:", validatedSandpackFiles);
   console.log("🚀 SANDPACK KEY:", sandpackKey);
   console.log("🚀 FILES KEYS:", Object.keys(validatedSandpackFiles));
+  console.log("🚀 APP.JS CONTENT:", validatedSandpackFiles["/src/App.js"]?.substring(0, 300) + "...");
   
   return (
     <div className="flex flex-col h-full w-full">
@@ -601,32 +619,7 @@ body {
                  key={sandpackKey}
                  template="react"
                  files={{
-                   "/src/App.js": validatedSandpackFiles["/src/App.js"] || `import React from 'react';
-
-function App() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
-      <div className="text-center px-4">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome to Your React App
-        </h1>
-        <p className="text-lg text-gray-600 mb-8">
-          Start building something amazing!
-        </p>
-        <div className="flex gap-4 justify-center">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-            Get Started
-          </button>
-          <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors">
-            Learn More
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default App;`,
+                   "/src/App.js": validatedSandpackFiles["/src/App.js"],
                    "/src/index.js": (() => {
                      const aiIndexContent = validatedSandpackFiles["/src/index.js"];
                      if (aiIndexContent) {
