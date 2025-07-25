@@ -172,11 +172,11 @@ export const FragmentSandpack = ({
         // Replace date-fns imports with native Date
         .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
         .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
-        // Fix relative component imports to work in Sandpack
-        .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./components/$1"')
-        .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./components/$1"')
-        .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "./components/$1"')
-        .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "./components/$1"')
+        // Fix relative component imports to work in Sandpack (all components in /src/)
+        .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./$1"')
+        .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./$1"')
+        .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "./$1"')
+        .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "./$1"')
         // Remove empty lines left by removed imports
         .replace(/^\s*$/gm, '')
         .replace(/\n\n+/g, '\n\n');
@@ -229,6 +229,11 @@ export const FragmentSandpack = ({
           // Replace date-fns imports with native Date
           .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
           .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
+          // Fix relative component imports to work in Sandpack (all components in /src/)
+          .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./$1"')
+          .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./$1"')
+          .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "./$1"')
+          .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "./$1"')
           // Remove empty lines left by removed imports
           .replace(/^\s*$/gm, '')
           .replace(/\n\n+/g, '\n\n');
@@ -323,14 +328,14 @@ export default App;`;
           // Replace date-fns imports with native Date
           .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
           .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
-          // Fix relative component imports to work in Sandpack
-          .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./components/$1"')
-          .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./components/$1"')
-          .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "./components/$1"')
-          .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "./components/$1"')
+          // Fix relative component imports to work in Sandpack (all components in /src/)
+          .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./$1"')
+          .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./$1"')
+          .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "./$1"')
+          .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "./$1"')
           // Fix other common relative imports
-          .replace(/from\s+['"`]\.\/utils\/(\w+)['"`]/g, 'from "./utils/$1"')
-          .replace(/from\s+['"`]\.\/hooks\/(\w+)['"`]/g, 'from "./hooks/$1"')
+          .replace(/from\s+['"`]\.\/utils\/(\w+)['"`]/g, 'from "./$1"')
+          .replace(/from\s+['"`]\.\/hooks\/(\w+)['"`]/g, 'from "./$1"')
           // Remove empty lines left by removed imports
           .replace(/^\s*$/gm, '')
           .replace(/\n\n+/g, '\n\n');
@@ -342,23 +347,14 @@ export default App;`;
         sandpackPath = sandpackPath.replace(/\.tsx?$/, '.js');
       }
       
-      // Ensure proper directory structure for components
+      // Simplify path structure - place all component files in /src/ directory
       if (!sandpackPath.startsWith('/')) {
-        // If it's a component file, put it in /src/components/
-        if (sandpackPath.includes('component') || 
-            sandpackPath.match(/^[A-Z]\w*\.(js|jsx)$/) || 
-            fileContent.includes('export default') || 
-            fileContent.includes('function ') || 
-            fileContent.includes('const ')) {
-          sandpackPath = `/src/components/${sandpackPath}`;
-        } else {
-          sandpackPath = `/src/${sandpackPath}`;
-        }
+        sandpackPath = `/src/${sandpackPath}`;
       }
       
-      // Ensure components directory structure
-      if (sandpackPath.includes('component') && !sandpackPath.includes('/src/components/')) {
-        sandpackPath = sandpackPath.replace(/.*components?\//, '/src/components/');
+      // Clean up any nested component paths
+      if (sandpackPath.includes('component')) {
+        sandpackPath = sandpackPath.replace(/.*components?\//, '/src/');
       }
       
       // Ensure React import for all component files
@@ -382,6 +378,7 @@ export default App;`;
       if (sandpackPath && sandpackPath.trim()) {
         newSandpackFiles[sandpackPath] = fileContent;
         console.log(`📁 Added file: ${sandpackPath}`);
+        console.log(`📄 Content preview: ${fileContent.substring(0, 150)}...`);
       } else {
         console.warn("Skipping file with invalid sandpack path:", { originalPath: path, sandpackPath });
       }
