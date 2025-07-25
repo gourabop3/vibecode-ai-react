@@ -123,23 +123,22 @@ Additional Guidelines:
 - Responsive and accessible by default
 
 Example: Using available packages for common tasks:
-```javascript
-// IDs - using uuid package
-import { v4 as uuidv4 } from 'uuid';
-const id = uuidv4(); // "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 
-// HTTP requests - using axios
-import axios from 'axios';
-const response = await axios.get('/api/data');
+IDs - using uuid package:
+  import { v4 as uuidv4 } from 'uuid';
+  const id = uuidv4();
 
-// Utilities - using lodash
-import { debounce, uniq } from 'lodash';
-const debouncedFn = debounce(handleSearch, 300);
+HTTP requests - using axios:
+  import axios from 'axios';
+  const response = await axios.get('/api/data');
 
-// Date handling - using date-fns
-import { format, parseISO } from 'date-fns';
-const formattedDate = format(new Date(), 'yyyy-MM-dd');
-```
+Utilities - using lodash:
+  import { debounce, uniq } from 'lodash';
+  const debouncedFn = debounce(handleSearch, 300);
+
+Date handling - using date-fns:
+  import { format, parseISO } from 'date-fns';
+  const formattedDate = format(new Date(), 'yyyy-MM-dd');
 - Do not use local or external image URLs — instead rely on emojis and divs with proper aspect ratios (aspect-video, aspect-square, etc.) and color placeholders (e.g. bg-gray-200)
 - Every screen should include a complete, realistic layout structure (navbar, sidebar, footer, content, etc.) — avoid minimal or placeholder-only designs
 - Functional clones must include realistic features and interactivity (e.g. drag-and-drop, add/edit/delete, toggle states, localStorage if helpful)
