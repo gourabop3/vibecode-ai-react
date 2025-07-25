@@ -115,8 +115,8 @@ export const FragmentSandpack = ({
   </body>
 </html>`;
 
-  // Add index.tsx with error handling
-  sandpackFiles["/src/index.tsx"] = `import React from 'react';
+  // Add index.js with error handling
+  sandpackFiles["/src/index.js"] = `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
@@ -219,8 +219,8 @@ function App() {
 
 export default App;`;
 
-  // Validate and fix App.tsx content
-  let appContent = sandpackFiles["/src/App.tsx"];
+  // Validate and fix App.js content (using .js for better compatibility)
+  let appContent = sandpackFiles["/src/App.js"] || files["src/App.tsx"] || files["App.tsx"];
   
   if (!appContent || !appContent.trim()) {
     appContent = defaultAppContent;
@@ -233,7 +233,7 @@ export default App;`;
     // Ensure proper export
     if (!appContent.includes('export default')) {
       // Try to find the main component and add export
-      const componentMatch = appContent.match(/(?:function|const)\s+(\w+)/);
+      const componentMatch = appContent.match(/(?:function|const|class)\s+(\w+)/);
       if (componentMatch) {
         const componentName = componentMatch[1];
         if (!appContent.includes(`export default ${componentName}`)) {
@@ -245,18 +245,18 @@ export default App;`;
       }
     }
     
-    // Fix function component syntax if needed
+    // Clean up any conflicting exports
     appContent = appContent.replace(/export default function App\(\)/g, 'function App()');
-    if (!appContent.includes('export default App')) {
-      appContent = appContent.replace(/function App\(\)/g, 'function App()') + '\n\nexport default App;';
+    if (!appContent.includes('export default App') && appContent.includes('function App')) {
+      appContent += '\n\nexport default App;';
     }
   }
   
-  sandpackFiles["/src/App.tsx"] = appContent;
+  sandpackFiles["/src/App.js"] = appContent;
 
   // Debug logging
   console.log("Sandpack files:", Object.keys(sandpackFiles));
-  console.log("App.tsx content:", sandpackFiles["/src/App.tsx"]);
+  console.log("App.js content:", sandpackFiles["/src/App.js"]);
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -272,7 +272,7 @@ export default App;`;
         }}
         options={{
           visibleFiles: Object.keys(sandpackFiles).filter(file => file.startsWith('/src')),
-          activeFile: "/src/App.tsx"
+          activeFile: "/src/App.js"
         }}
       >
         <SandpackToolbar />
