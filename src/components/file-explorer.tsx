@@ -12,7 +12,6 @@ import { CodeView } from "./code";
 import { convertFilesToTreeItems } from "@/lib/utils";
 import { TreeView } from "./tree-view";
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "./ui/breadcrumb";
-import { Sandpack } from "@codesandbox/sandpack-react";
 
 type FileCollection = { [path: string]: string };
 
@@ -120,22 +119,48 @@ export const FileExplorer = ({
 
 
   return (
-    <div className="h-full w-full flex flex-col">
-      {/* Sandpack file explorer and code editor */}
-      <Sandpack
-        template="react"
-        files={files as any}
-        options={{
-          showTabs: true,
-          showLineNumbers: true,
-          showInlineErrors: true,
-          editorHeight: 500,
-          editorWidthPercentage: 60,
-          wrapContent: true,
-          showConsole: true
-        }}
-      />
-    </div>
+    <ResizablePanelGroup direction="horizontal">
+      <ResizablePanel defaultSize={30} minSize={30} className="h-full">
+        <TreeView
+          data={treeData}
+          onSelect={handleFileSelect}
+          value={selectedFile}
+        />
+      </ResizablePanel>
+      <ResizableHandle withHandle className="hover:bg-primary transition-colors"/>
+      <ResizablePanel defaultSize={70} minSize={50}>
+        {
+          selectedFile && files[selectedFile] ? (
+            <div className="h-full w-full flex flex-col">
+              <div className="border-b flex bg-sidebar px-4 py-2 justify-between items-center">
+                <FileBreadcrumb filePath={selectedFile} />
+                <Hint content="Copy the file path to clipboard">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto"
+                    onClick={handleFileCopy}
+                    disabled={copied}
+                  >
+                    { copied ? <CopyCheckIcon/> : <CopyIcon/> }
+                  </Button>
+                </Hint>
+              </div>
+              <div className="flex-1 overflow-auto p-2">
+                <CodeView
+                  code={files[selectedFile]}
+                  language={getFileExtension(selectedFile)}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex h-full items-center justify-center p-4 text-muted-foreground">
+              Open a file to view its contents
+            </div>
+          )
+        }
+      </ResizablePanel>
+    </ResizablePanelGroup>
   )
 }
 
