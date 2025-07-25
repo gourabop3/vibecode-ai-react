@@ -32,9 +32,10 @@
 ### 2. Database (Already configured)
 - Using SQLite for local development (no setup needed)
 
-### 3. Inngest (Optional)
-- Not required for basic functionality
-- The app works without Inngest keys
+### 3. Inngest (Required for AI)
+- **CRITICAL**: Required for AI app generation to work
+- The AI agent won't run without proper Inngest setup
+- Set the environment variables in `.env.local` as shown above
 
 ## 🏃‍♂️ Running the Application
 
@@ -49,10 +50,27 @@
    npx prisma db push
    ```
 
-3. **Start the development server**:
+3. **Start the Inngest dev server** (in a separate terminal):
+   ```bash
+   npx inngest-cli@latest dev
+   ```
+   This should start on `http://localhost:8288`
+
+4. **Start the development server**:
    ```bash
    npm run dev
    ```
+
+5. **Open your browser**:
+   Navigate to `http://localhost:3000`
+
+## 🧪 Testing AI Generation
+
+1. Create a new project
+2. Send a message like "create a todo app"
+3. Watch the Inngest dashboard at `http://localhost:8288` for function runs
+4. View the generated app in the preview tab
+5. Check the code tab to see all generated files
 
 4. **Open your browser**:
    - Navigate to [http://localhost:3000](http://localhost:3000)
