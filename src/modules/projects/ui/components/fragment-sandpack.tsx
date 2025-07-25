@@ -20,18 +20,7 @@ const SandpackToolbar = () => {
   const { sandpack } = useSandpack();
   
   const handleRefresh = () => {
-    sandpack.resetAllModules();
-  };
-
-  const handleOpenInNewWindow = () => {
-    // Open preview in new window
-    if (sandpack.iframe && sandpack.iframe.contentWindow) {
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(sandpack.iframe.contentDocument?.documentElement.outerHTML || '');
-        newWindow.document.close();
-      }
-    }
+    sandpack.resetAllFiles();
   };
 
   return (
@@ -43,11 +32,23 @@ const SandpackToolbar = () => {
       >
         <RefreshCcwIcon className="w-4 h-4" />
       </Button>
-      <Hint content="Open in new tab" align="start">
+      <Button
+        size="sm"
+        variant="outline"
+        className="flex-1 justify-start text-start font-normal"
+        disabled
+      >
+        <span className="truncate text-foreground">React App Preview</span>
+      </Button>
+      <Hint content="Open in CodeSandbox" align="start">
         <Button
           size="sm"
           variant="outline"
-          onClick={handleOpenInNewWindow}
+          onClick={() => {
+            // This will be handled by Sandpack's built-in functionality
+            const event = new CustomEvent('sandpack-open-in-codesandbox');
+            window.dispatchEvent(event);
+          }}
         >
           <ExternalLinkIcon className="w-4 h-4" />
         </Button>

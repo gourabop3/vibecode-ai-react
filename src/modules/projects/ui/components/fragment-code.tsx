@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react"
+
 import { Fragment } from "@/generated/prisma"
 import { 
   SandpackProvider, 
   SandpackCodeEditor,
-  SandpackFileExplorer,
-  SandpackLayout
+  SandpackFileExplorer
 } from "@codesandbox/sandpack-react"
 import {
   ResizableHandle,
