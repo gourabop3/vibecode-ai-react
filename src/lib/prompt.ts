@@ -155,11 +155,11 @@ Example: Using ONLY native JavaScript for React apps:
 
 IDs - using Math.random:
   const id = Math.random().toString(36).substr(2, 9);
-  const uniqueId = `item-${Math.random().toString(36).substr(2, 9)}`;
+  const uniqueId = \`item-\${Math.random().toString(36).substr(2, 9)}\`;
 
 Classes - using template literals:
-  const className = `btn ${isActive ? 'btn-active' : ''} ${!enabled ? 'btn-disabled' : ''}`.trim();
-  const dynamicClass = `base-class ${condition ? 'active-class' : 'inactive-class'}`;
+  const className = \`btn \${isActive ? 'btn-active' : ''} \${!enabled ? 'btn-disabled' : ''}\`.trim();
+  const dynamicClass = \`base-class \${condition ? 'active-class' : 'inactive-class'}\`;
 
 HTTP requests - using fetch:
   const response = await fetch('/api/data');
