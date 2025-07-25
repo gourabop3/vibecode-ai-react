@@ -601,7 +601,18 @@ body {
                  key={sandpackKey}
                  template="react"
                  files={{
-                   "/src/App.js": validatedSandpackFiles["/src/App.js"] || `import React from 'react';
+                   "/src/App.js": (() => {
+                     const aiAppContent = validatedSandpackFiles["/src/App.js"];
+                     if (aiAppContent) {
+                       // Ensure the AI content imports index.css
+                       let content = aiAppContent;
+                       if (!content.includes('import \'./index.css\'') && !content.includes('import "./index.css"')) {
+                         content = content.replace('import React from \'react\';', 'import React from \'react\';\nimport \'./index.css\';');
+                       }
+                       return content;
+                     }
+                     return `import React from 'react';
+import './index.css';
 
 function App() {
   return (
@@ -626,7 +637,8 @@ function App() {
   );
 }
 
-export default App;`,
+export default App;`;
+                   })(),
                    "/src/index.js": validatedSandpackFiles["/src/index.js"] || `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -639,23 +651,54 @@ root.render(<App />);`,
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>React App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
-            },
-          },
-        },
-      }
-    </script>
+    <link href="https://unpkg.com/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
   </body>
 </html>`,
+                   "/src/index.css": `/* Tailwind CSS base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #ffffff;
+}
+
+/* Ensure Tailwind classes work */
+.min-h-screen { min-height: 100vh; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.bg-gray-50 { background-color: #f9fafb; }
+.text-center { text-align: center; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.font-bold { font-weight: 700; }
+.text-gray-900 { color: #111827; }
+.mb-4 { margin-bottom: 1rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-gray-600 { color: #4b5563; }
+.mb-8 { margin-bottom: 2rem; }
+.gap-4 { gap: 1rem; }
+.bg-blue-600 { background-color: #2563eb; }
+.hover\\:bg-blue-700:hover { background-color: #1d4ed8; }
+.text-white { color: #ffffff; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.font-medium { font-weight: 500; }
+.transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+.border { border-width: 1px; }
+.border-gray-300 { border-color: #d1d5db; }
+.hover\\:bg-gray-50:hover { background-color: #f9fafb; }
+.text-gray-700 { color: #374151; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }`,
                    "/package.json": JSON.stringify({
                      name: "react-app",
                      version: "0.1.0",
