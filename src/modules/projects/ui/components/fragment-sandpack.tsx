@@ -601,23 +601,61 @@ body {
                  key={sandpackKey}
                  template="react"
                  files={{
-                   "/src/App.js": validatedSandpackFiles["/src/App.js"] || `import React from 'react';
+                   "/src/App.js": (() => {
+                     const aiAppContent = validatedSandpackFiles["/src/App.js"];
+                     if (aiAppContent && !aiAppContent.includes('@import') && !aiAppContent.includes('tailwindcss')) {
+                       // Use AI content only if it doesn't contain problematic imports
+                       return aiAppContent.includes('import ') ? aiAppContent : `import React from 'react';\n\n${aiAppContent}`;
+                     }
+                     return `import React from 'react';
+import './App.css';
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <h1 className="text-2xl font-bold">Hello World</h1>
+    <div className="app-container">
+      <h1 className="app-title">Hello World</h1>
     </div>
   );
 }
 
-export default App;`,
+export default App;`;
+                   })(),
                    "/src/index.js": validatedSandpackFiles["/src/index.js"] || `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);`
+root.render(<App />);`,
+                   "/src/App.css": `
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111827;
+}`,
+                   "/package.json": JSON.stringify({
+                     name: "react-app",
+                     version: "0.1.0",
+                     private: true,
+                     dependencies: {
+                       react: "^18.0.0",
+                       "react-dom": "^18.0.0",
+                       "react-scripts": "5.0.1"
+                     },
+                     scripts: {
+                       start: "react-scripts start",
+                       build: "react-scripts build",
+                       test: "react-scripts test"
+                     }
+                   }, null, 2)
                  }}
                  theme="light"
                  options={{
