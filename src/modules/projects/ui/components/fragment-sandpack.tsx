@@ -332,9 +332,27 @@ export default App;`;
         sandpackPath = `/${sandpackPath}`;
       }
       
+      // Ensure React import for all component files
+      if ((sandpackPath.endsWith('.js') || sandpackPath.endsWith('.jsx')) && 
+          fileContent.includes('function ') || fileContent.includes('const ') || fileContent.includes('export')) {
+        if (!fileContent.includes('import React')) {
+          fileContent = `import React from 'react';\n\n${fileContent}`;
+        }
+        
+        // Ensure proper export for component files
+        if (!fileContent.includes('export default') && !fileContent.includes('export {')) {
+          const componentMatch = fileContent.match(/(?:function|const)\s+(\w+)/);
+          if (componentMatch) {
+            const componentName = componentMatch[1];
+            fileContent += `\n\nexport default ${componentName};`;
+          }
+        }
+      }
+      
       // Final validation before assignment
       if (sandpackPath && sandpackPath.trim()) {
         newSandpackFiles[sandpackPath] = fileContent;
+        console.log(`📁 Added file: ${sandpackPath}`);
       } else {
         console.warn("Skipping file with invalid sandpack path:", { originalPath: path, sandpackPath });
       }
@@ -519,10 +537,17 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
     console.error("Error creating React files:", error);
   }
   
-     console.log("Final sandpack files:", Object.keys(newSandpackFiles));
-   console.log("Converted App.js content:", newSandpackFiles["/src/App.js"]?.substring(0, 500) + "...");
-   console.log("Index.js content:", newSandpackFiles["/src/index.js"]);
-   console.log("Package.json content:", newSandpackFiles["/package.json"]);
+     console.log("📋 Final sandpack files:", Object.keys(newSandpackFiles));
+   console.log("📋 Component files found:", Object.keys(newSandpackFiles).filter(path => path.includes('components')));
+   console.log("🔍 App.js content preview:", newSandpackFiles["/src/App.js"]?.substring(0, 500) + "...");
+   
+   // Log all component files for debugging
+   Object.keys(newSandpackFiles).forEach(path => {
+     if (path.includes('components') || path === '/src/App.js') {
+       console.log(`📄 File: ${path}`);
+       console.log(`📄 Content preview: ${newSandpackFiles[path]?.substring(0, 200)}...`);
+     }
+   });
   
   // TEMPORARY TEST: Force some content to see if Sandpack works
   if (appContent.includes("Welcome to Your React App")) {
@@ -671,22 +696,20 @@ body {
       <SandpackToolbar />
       
       <div className="flex-1 min-h-0 h-full">
-        {(() => {
+                {(() => {
           try {
-            return (
-                              <SandpackProvider
-                 key={sandpackKey}
-                 template="react"
-                 files={{
-                   "/src/App.js": validatedSandpackFiles["/src/App.js"],
-                   "/src/index.js": `import React from 'react';
+            const allFiles = {
+              // Include ALL validated files (this includes all AI-generated components)
+              ...validatedSandpackFiles,
+              // Override with essential files to ensure they work
+              "/src/index.js": `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`,
-                   "/public/index.html": `<!DOCTYPE html>
+              "/public/index.html": `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -698,7 +721,7 @@ root.render(<App />);`,
     <div id="root"></div>
   </body>
 </html>`,
-                   "/src/index.css": `/* Tailwind CSS base styles */
+              "/src/index.css": `/* Tailwind CSS base styles */
 * {
   margin: 0;
   padding: 0;
@@ -740,22 +763,31 @@ body {
 .hover\\:bg-gray-50:hover { background-color: #f9fafb; }
 .text-gray-700 { color: #374151; }
 .px-4 { padding-left: 1rem; padding-right: 1rem; }`,
-                   "/package.json": JSON.stringify({
-                     name: "react-app",
-                     version: "0.1.0",
-                     private: true,
-                     dependencies: {
-                       react: "^18.0.0",
-                       "react-dom": "^18.0.0",
-                       "react-scripts": "5.0.1"
-                     },
-                     scripts: {
-                       start: "react-scripts start",
-                       build: "react-scripts build",
-                       test: "react-scripts test"
-                     }
-                   }, null, 2)
-                 }}
+              "/package.json": JSON.stringify({
+                name: "react-app",
+                version: "0.1.0",
+                private: true,
+                dependencies: {
+                  react: "^18.0.0",
+                  "react-dom": "^18.0.0",
+                  "react-scripts": "5.0.1"
+                },
+                scripts: {
+                  start: "react-scripts start",
+                  build: "react-scripts build",
+                  test: "react-scripts test"
+                }
+              }, null, 2)
+            };
+            
+            console.log("🎯 FILES BEING PASSED TO SANDPACK:", Object.keys(allFiles));
+            console.log("🎯 COMPONENT FILES:", Object.keys(allFiles).filter(f => f.includes('components')));
+            
+            return (
+                             <SandpackProvider
+                 key={sandpackKey}
+                 template="react"
+                 files={allFiles}}
                  theme="light"
                  options={{
                    visibleFiles: ["/src/App.js"],
