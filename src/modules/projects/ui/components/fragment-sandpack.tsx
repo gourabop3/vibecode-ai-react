@@ -186,45 +186,13 @@ export default App;`;
   // Set up complete files for Sandpack
   // Add all AI-generated files to Sandpack
   Object.entries(files).forEach(([path, content]) => {
-    // Convert TypeScript files to JavaScript for Sandpack
+    // Use files directly since they should now be JavaScript
     let sandpackPath = path;
     let sandpackContent = content;
     
-    // Convert .tsx to .js and remove TypeScript syntax
+    // Convert any remaining .tsx/.ts extensions to .js (shouldn't happen with new prompt)
     if (path.endsWith('.tsx') || path.endsWith('.ts')) {
       sandpackPath = path.replace(/\.tsx?$/, '.js');
-      // Comprehensive TypeScript to JavaScript conversion
-      sandpackContent = content
-        // Remove all imports from lucide-react and replace with empty components
-        .replace(/import\s+.*\s+from\s+['"]lucide-react['"];?/g, '')
-        // Replace lucide icon usage with simple div elements
-        .replace(/<(Plus|Moon|Sun|Check|Trash2?|Edit|Save|XCircle|X)(\s+[^>]*)?\/?>.*?<\/\1>|<(Plus|Moon|Sun|Check|Trash2?|Edit|Save|XCircle|X)(\s+[^>]*)?\s*\/>/g, '<div>•</div>')
-        .replace(/(Plus|Moon|Sun|Check|Trash2?|Edit|Save|XCircle|X)/g, '"•"')
-        // Remove TypeScript type annotations
-        .replace(/:\s*React\.FC.*?=/g, ' =')
-        .replace(/export\s+const\s+(\w+):\s*React\.FC.*?=/g, 'export const $1 =')
-        .replace(/const\s+(\w+):\s*React\.FC.*?=/g, 'const $1 =')
-        // Remove function parameter types
-        .replace(/\(\s*\w+:\s*[^)]+\)/g, (match) => {
-          return match.replace(/:\s*[^,)]+/g, '');
-        })
-        // Remove variable type annotations
-        .replace(/:\s*(string|number|boolean|\w+\[\]|\w+)/g, '')
-        // Remove useRef type parameters
-        .replace(/useRef<[^>]+>/g, 'useRef')
-        // Remove useState type parameters
-        .replace(/useState<[^>]+>/g, 'useState')
-        // Remove type definitions
-        .replace(/type\s+\w+\s*=.*?;/g, '')
-        // Remove interfaces completely
-        .replace(/interface\s+\w+\s*{[^}]*}/g, '')
-        .replace(/export\s+interface.*$/gm, '')
-        // Remove generic type parameters in JSX (but keep JSX)
-        .replace(/<(\w+)<[^>]*>/g, '<$1')
-        // Clean up any remaining type assertions
-        .replace(/\s+as\s+\w+/g, '')
-        // Remove optional chaining that might not work in older JS
-        .replace(/\?\./g, '.');
     }
     
     sandpackFiles[`/${sandpackPath}`] = sandpackContent;

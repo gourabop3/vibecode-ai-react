@@ -64,8 +64,8 @@ export const FragmentCode = ({
   </body>
 </html>`;
 
-  // Add src/index.tsx
-  completeReactFiles["src/index.tsx"] = `import React from 'react';
+  // Add src/index.js
+  completeReactFiles["src/index.js"] = `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
@@ -115,7 +115,7 @@ code {
   // Add tailwind.config.js
   completeReactFiles["tailwind.config.js"] = `/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  content: ["./src/**/*.{js,jsx}"],
   theme: {
     extend: {},
   },
@@ -125,29 +125,7 @@ module.exports = {
   ],
 }`;
 
-  // Add tsconfig.json
-  completeReactFiles["tsconfig.json"] = `{
-  "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "es6"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
-  },
-  "include": ["src"]
-}`;
-
-  // Add default App.tsx if not present
+  // Add default App.js if not present
   const defaultAppContent = `import React from 'react';
 
 function App() {
@@ -186,9 +164,9 @@ export default App;`;
     });
   }
 
-  // Ensure App.tsx exists
-  if (!completeReactFiles["src/App.tsx"] || !completeReactFiles["src/App.tsx"].trim()) {
-    completeReactFiles["src/App.tsx"] = defaultAppContent;
+  // Ensure App.js exists
+  if (!completeReactFiles["src/App.js"] || !completeReactFiles["src/App.js"].trim()) {
+    completeReactFiles["src/App.js"] = defaultAppContent;
   }
 
   return (
