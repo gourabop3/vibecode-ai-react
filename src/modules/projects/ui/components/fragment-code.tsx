@@ -1,17 +1,7 @@
 "use client";
 
-
 import { Fragment } from "@/generated/prisma"
-import { 
-  SandpackProvider, 
-  SandpackCodeEditor,
-  SandpackFileExplorer
-} from "@codesandbox/sandpack-react"
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup
-} from "@/components/ui/resizable";
+import { FileExplorer } from "@/components/file-explorer";
 
 interface Props {
   fragment: Fragment
@@ -20,177 +10,12 @@ interface Props {
 export const FragmentCode = ({
   fragment
 }: Props) => {
-  // Convert fragment files to Sandpack format
+  // Get the files from the fragment
   const files = fragment.files as { [path: string]: string };
-  
-  // Process files to match React app structure
-  const sandpackFiles: { [key: string]: string } = {};
-  
-  // Set up the basic React app structure
-  sandpackFiles["/package.json"] = JSON.stringify({
-    name: "react-app",
-    version: "0.1.0",
-    private: true,
-    dependencies: {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "react-scripts": "5.0.1",
-      "typescript": "^4.4.2",
-      "tailwindcss": "^3.3.0",
-      "autoprefixer": "^10.4.14",
-      "postcss": "^8.4.24",
-      "@tailwindcss/forms": "^0.5.3",
-      "@tailwindcss/typography": "^0.5.9",
-      "lucide-react": "^0.263.1",
-      "class-variance-authority": "^0.7.0",
-      "clsx": "^1.2.1",
-      "tailwind-merge": "^1.13.2"
-    },
-    scripts: {
-      start: "react-scripts start",
-      build: "react-scripts build",
-      test: "react-scripts test",
-      eject: "react-scripts eject"
-    },
-    browserslist: {
-      production: [">0.2%", "not dead", "not op_mini all"],
-      development: ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
-    }
-  }, null, 2);
-
-  // Add index.html
-  sandpackFiles["/public/index.html"] = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="React app created with AI" />
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
-</html>`;
-
-  // Add index.tsx
-  sandpackFiles["/src/index.tsx"] = `import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);`;
-
-  // Add index.css with Tailwind
-  sandpackFiles["/src/index.css"] = `@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}`;
-
-  // Add Tailwind config
-  sandpackFiles["/tailwind.config.js"] = `/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
-  theme: {
-    extend: {},
-  },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
-}`;
-
-  // Process the fragment files
-  Object.entries(files).forEach(([path, content]) => {
-    // Convert paths to match React structure
-    let sandpackPath = path;
-    
-    // If path doesn't start with src/, add it
-    if (!path.startsWith('src/') && !path.startsWith('/')) {
-      sandpackPath = `/src/${path}`;
-    } else if (path.startsWith('src/')) {
-      sandpackPath = `/${path}`;
-    }
-    
-    sandpackFiles[sandpackPath] = content;
-  });
-
-  // Ensure App.tsx exists
-  if (!sandpackFiles["/src/App.tsx"]) {
-    sandpackFiles["/src/App.tsx"] = `import React from 'react';
-
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome to Your React App
-        </h1>
-        <p className="text-lg text-gray-600">
-          Start building something amazing!
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export default App;`;
-  }
 
   return (
-    <div className="flex flex-col h-full w-full">
-      <SandpackProvider
-        template="react-ts"
-        files={sandpackFiles}
-        theme="light"
-        options={{
-          visibleFiles: Object.keys(sandpackFiles).filter(file => file.startsWith('/src')),
-          activeFile: "/src/App.tsx"
-        }}
-      >
-        <div className="h-full">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            <ResizablePanel
-              defaultSize={25}
-              minSize={15}
-              maxSize={40}
-              className="border-r"
-            >
-              <SandpackFileExplorer />
-            </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel
-              defaultSize={75}
-              minSize={60}
-            >
-              <SandpackCodeEditor 
-                style={{ height: "100%" }}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-      </SandpackProvider>
+    <div className="h-full w-full">
+      <FileExplorer files={files} />
     </div>
   );
 };
