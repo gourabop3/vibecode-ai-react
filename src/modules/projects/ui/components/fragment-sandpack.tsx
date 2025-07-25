@@ -198,17 +198,13 @@ export default App;`;
     sandpackFiles[`/${sandpackPath}`] = sandpackContent;
   });
   
-  // Add essential React files with commonly used packages
+  // Add essential React files with minimal, reliable packages
   sandpackFiles["/package.json"] = JSON.stringify({
     dependencies: {
       react: "^18.0.0",
       "react-dom": "^18.0.0",
       uuid: "^9.0.0",
-      axios: "^1.6.0",
-      lodash: "^4.17.21",
-      "date-fns": "^2.30.0",
-      clsx: "^2.0.0",
-      "react-router-dom": "^6.20.0"
+      clsx: "^2.0.0"
     }
   }, null, 2);
   
