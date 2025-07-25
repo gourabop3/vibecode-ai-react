@@ -467,20 +467,104 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
     console.log("🔍 FINAL VALIDATION - sandpackFiles:", sandpackFiles);
     console.log("🔍 FINAL VALIDATION - sandpackFiles keys:", Object.keys(sandpackFiles || {}));
     
-    const validated: { [key: string]: string } = {};
+    // Start with guaranteed minimal valid files
+    const validated: { [key: string]: string } = {
+      "/src/App.js": `import React from 'react';
+
+function App() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
+      <div className="text-center px-4">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          Welcome to Your React App
+        </h1>
+        <p className="text-lg text-gray-600 mb-8">
+          Start building something amazing!
+        </p>
+        <div className="flex gap-4 justify-center">
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Get Started
+          </button>
+          <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors">
+            Learn More
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;`,
+      "/src/index.js": `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);`,
+      "/src/index.css": `@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}`,
+      "/public/index.html": `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>React App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>`,
+      "/package.json": JSON.stringify({
+        name: "react-app",
+        version: "0.1.0",
+        private: true,
+        dependencies: {
+          react: "^18.0.0",
+          "react-dom": "^18.0.0",
+          "react-scripts": "5.0.1",
+          tailwindcss: "^3.3.0",
+          autoprefixer: "^10.4.14",
+          postcss: "^8.4.24"
+        },
+        scripts: {
+          start: "react-scripts start",
+          build: "react-scripts build",
+          test: "react-scripts test"
+        }
+      }, null, 2)
+    };
     
+    // Add AI-generated files only if they have valid paths
     Object.entries(sandpackFiles || {}).forEach(([path, content]) => {
       console.log("🔍 VALIDATING PATH:", { path, pathType: typeof path, pathValue: JSON.stringify(path) });
       console.log("🔍 VALIDATING CONTENT:", { contentType: typeof content, contentLength: String(content || '').length });
       
-      // Ensure path is valid
-      if (path && typeof path === 'string' && path.trim()) {
+      // Ensure path is valid and not one of our defaults
+      if (path && typeof path === 'string' && path.trim() && !validated[path.trim()]) {
         const cleanPath = path.trim();
         const cleanContent = typeof content === 'string' ? content : String(content || '');
         validated[cleanPath] = cleanContent;
-        console.log("✅ ADDED TO VALIDATED:", cleanPath);
+        console.log("✅ ADDED AI FILE TO VALIDATED:", cleanPath);
       } else {
-        console.error("❌ SKIPPING INVALID PATH:", { path, pathType: typeof path, content: typeof content });
+        console.error("❌ SKIPPING INVALID OR DUPLICATE PATH:", { path, pathType: typeof path, content: typeof content });
       }
     });
     
@@ -513,16 +597,16 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
         {(() => {
           try {
             return (
-              <SandpackProvider
-                key={sandpackKey}
-                template="react"
-                files={validatedSandpackFiles}
-                theme="light"
-                options={{
-                  visibleFiles: ["/src/App.js", "/src/index.js"],
-                  activeFile: "/src/App.js"
-                }}
-                style={{ height: "100%" }}
+                              <SandpackProvider
+                 key={sandpackKey}
+                 template="react"
+                 files={validatedSandpackFiles}
+                 theme="light"
+                 options={{
+                   visibleFiles: Object.keys(validatedSandpackFiles).includes("/src/App.js") ? ["/src/App.js"] : [Object.keys(validatedSandpackFiles)[0]],
+                   activeFile: Object.keys(validatedSandpackFiles).includes("/src/App.js") ? "/src/App.js" : Object.keys(validatedSandpackFiles)[0]
+                 }}
+                 style={{ height: "100%" }}
               >
                 <SandpackPreview 
                   showOpenInCodeSandbox={false}
