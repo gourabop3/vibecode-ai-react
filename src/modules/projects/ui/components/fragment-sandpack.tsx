@@ -67,35 +67,11 @@ export const FragmentSandpack = ({
   // Process files to match React app structure
   const sandpackFiles: { [key: string]: string } = {};
   
-  // Set up the basic React app structure
+  // Keep the package.json minimal for Sandpack
   sandpackFiles["/package.json"] = JSON.stringify({
-    name: "react-app",
-    version: "0.1.0",
-    private: true,
     dependencies: {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "react-scripts": "5.0.1",
-      "typescript": "^4.4.2",
-      "tailwindcss": "^3.3.0",
-      "autoprefixer": "^10.4.14",
-      "postcss": "^8.4.24",
-      "@tailwindcss/forms": "^0.5.3",
-      "@tailwindcss/typography": "^0.5.9",
-      "lucide-react": "^0.263.1",
-      "class-variance-authority": "^0.7.0",
-      "clsx": "^1.2.1",
-      "tailwind-merge": "^1.13.2"
-    },
-    scripts: {
-      start: "react-scripts start",
-      build: "react-scripts build",
-      test: "react-scripts test",
-      eject: "react-scripts eject"
-    },
-    browserslist: {
-      production: [">0.2%", "not dead", "not op_mini all"],
-      development: ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+      "react": "^18.0.0",
+      "react-dom": "^18.0.0"
     }
   }, null, 2);
 
@@ -115,34 +91,13 @@ export const FragmentSandpack = ({
   </body>
 </html>`;
 
-  // Add index.js with error handling
+  // Add simple index.js
   sandpackFiles["/src/index.js"] = `import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Root element not found');
-}
-
-const root = ReactDOM.createRoot(rootElement);
-
-try {
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-} catch (error) {
-  console.error('Error rendering app:', error);
-  root.render(
-    <div>
-      <h1>Error loading app</h1>
-      <p>Please check the console for details.</p>
-    </div>
-  );
-}`;
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);`;
 
   // Add index.css with Tailwind
   sandpackFiles["/src/index.css"] = `@tailwind base;
@@ -264,15 +219,13 @@ export default App;`;
         template="react"
         files={sandpackFiles}
         theme="light"
-        customSetup={{
-          dependencies: {
-            "react": "^18.2.0",
-            "react-dom": "^18.2.0"
-          }
-        }}
         options={{
-          visibleFiles: Object.keys(sandpackFiles).filter(file => file.startsWith('/src')),
-          activeFile: "/src/App.js"
+          showNavigator: false,
+          showTabs: false,
+          showLineNumbers: false,
+          closableTabs: false,
+          editorWidthPercentage: 0,
+          editorHeight: 400
         }}
       >
         <SandpackToolbar />
