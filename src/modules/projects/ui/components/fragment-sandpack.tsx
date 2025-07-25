@@ -386,6 +386,8 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
   
      console.log("Final sandpack files:", Object.keys(sandpackFiles));
    console.log("Converted App.js content:", sandpackFiles["/src/App.js"]?.substring(0, 500) + "...");
+   console.log("Index.js content:", sandpackFiles["/src/index.js"]);
+   console.log("Package.json content:", sandpackFiles["/package.json"]);
   
   // TEMPORARY TEST: Force some content to see if Sandpack works
   if (appContent.includes("Welcome to Your React App")) {
@@ -406,6 +408,10 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
           template="react"
           files={sandpackFiles}
           theme="light"
+          options={{
+            visibleFiles: ["/src/App.js", "/src/index.js"],
+            activeFile: "/src/App.js"
+          }}
         >
           <SandpackPreview 
             showOpenInCodeSandbox={false}
