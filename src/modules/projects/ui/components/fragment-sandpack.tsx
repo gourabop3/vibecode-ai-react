@@ -601,46 +601,61 @@ body {
                  key={sandpackKey}
                  template="react"
                  files={{
-                   "/src/App.js": (() => {
-                     const aiAppContent = validatedSandpackFiles["/src/App.js"];
-                     if (aiAppContent && !aiAppContent.includes('@import') && !aiAppContent.includes('tailwindcss')) {
-                       // Use AI content only if it doesn't contain problematic imports
-                       return aiAppContent.includes('import ') ? aiAppContent : `import React from 'react';\n\n${aiAppContent}`;
-                     }
-                     return `import React from 'react';
-import './App.css';
+                   "/src/App.js": validatedSandpackFiles["/src/App.js"] || `import React from 'react';
 
 function App() {
   return (
-    <div className="app-container">
-      <h1 className="app-title">Hello World</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
+      <div className="text-center px-4">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          Welcome to Your React App
+        </h1>
+        <p className="text-lg text-gray-600 mb-8">
+          Start building something amazing!
+        </p>
+        <div className="flex gap-4 justify-center">
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Get Started
+          </button>
+          <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors">
+            Learn More
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default App;`;
-                   })(),
+export default App;`,
                    "/src/index.js": validatedSandpackFiles["/src/index.js"] || `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`,
-                   "/src/App.css": `
-.app-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9fafb;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.app-title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #111827;
-}`,
+                   "/public/index.html": `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>React App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>`,
                    "/package.json": JSON.stringify({
                      name: "react-app",
                      version: "0.1.0",
