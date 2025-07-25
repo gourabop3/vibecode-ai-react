@@ -689,7 +689,7 @@ body {
   console.log("🚀 ABOUT TO RENDER SANDPACK WITH FILES:", validatedSandpackFiles);
   console.log("🚀 SANDPACK KEY:", sandpackKey);
   console.log("🚀 FILES KEYS:", Object.keys(validatedSandpackFiles));
-  console.log("🚀 APP.JS CONTENT:", validatedSandpackFiles["/src/App.js"]?.substring(0, 300) + "...");
+  console.log("🚀 APP.JS CONTENT:", (validatedSandpackFiles["/src/App.js"] || "").substring(0, 300) + "...");
   
   return (
     <div className="flex flex-col h-full w-full">
