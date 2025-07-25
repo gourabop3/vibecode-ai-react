@@ -115,20 +115,34 @@ export const FragmentSandpack = ({
   </body>
 </html>`;
 
-  // Add index.tsx
+  // Add index.tsx with error handling
   sandpackFiles["/src/index.tsx"] = `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);`;
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+const root = ReactDOM.createRoot(rootElement);
+
+try {
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+} catch (error) {
+  console.error('Error rendering app:', error);
+  root.render(
+    <div>
+      <h1>Error loading app</h1>
+      <p>Please check the console for details.</p>
+    </div>
+  );
+}`;
 
   // Add index.css with Tailwind
   sandpackFiles["/src/index.css"] = `@tailwind base;
@@ -185,9 +199,8 @@ module.exports = {
     });
   }
 
-  // Always ensure App.tsx exists with valid content
-  if (!sandpackFiles["/src/App.tsx"] || !sandpackFiles["/src/App.tsx"].trim()) {
-    sandpackFiles["/src/App.tsx"] = `import React from 'react';
+  // Always ensure App.js exists with valid content (using .js for better compatibility)
+  const defaultAppContent = `import React from 'react';
 
 function App() {
   return (
@@ -205,26 +218,58 @@ function App() {
 }
 
 export default App;`;
-  }
 
-  // Ensure App.tsx has proper React import and export
-  if (sandpackFiles["/src/App.tsx"] && !sandpackFiles["/src/App.tsx"].includes('import React')) {
-    sandpackFiles["/src/App.tsx"] = `import React from 'react';\n\n${sandpackFiles["/src/App.tsx"]}`;
-  }
+  // Validate and fix App.tsx content
+  let appContent = sandpackFiles["/src/App.tsx"];
   
-  if (sandpackFiles["/src/App.tsx"] && !sandpackFiles["/src/App.tsx"].includes('export default')) {
-    sandpackFiles["/src/App.tsx"] = sandpackFiles["/src/App.tsx"].replace(/function App/, 'function App');
-    if (!sandpackFiles["/src/App.tsx"].includes('export default App')) {
-      sandpackFiles["/src/App.tsx"] += '\n\nexport default App;';
+  if (!appContent || !appContent.trim()) {
+    appContent = defaultAppContent;
+  } else {
+    // Fix common import/export issues
+    if (!appContent.includes('import React')) {
+      appContent = `import React from 'react';\n\n${appContent}`;
+    }
+    
+    // Ensure proper export
+    if (!appContent.includes('export default')) {
+      // Try to find the main component and add export
+      const componentMatch = appContent.match(/(?:function|const)\s+(\w+)/);
+      if (componentMatch) {
+        const componentName = componentMatch[1];
+        if (!appContent.includes(`export default ${componentName}`)) {
+          appContent += `\n\nexport default ${componentName};`;
+        }
+      } else {
+        // Fallback to default app
+        appContent = defaultAppContent;
+      }
+    }
+    
+    // Fix function component syntax if needed
+    appContent = appContent.replace(/export default function App\(\)/g, 'function App()');
+    if (!appContent.includes('export default App')) {
+      appContent = appContent.replace(/function App\(\)/g, 'function App()') + '\n\nexport default App;';
     }
   }
+  
+  sandpackFiles["/src/App.tsx"] = appContent;
+
+  // Debug logging
+  console.log("Sandpack files:", Object.keys(sandpackFiles));
+  console.log("App.tsx content:", sandpackFiles["/src/App.tsx"]);
 
   return (
     <div className="flex flex-col h-full w-full">
       <SandpackProvider
-        template="react-ts"
+        template="react"
         files={sandpackFiles}
         theme="light"
+        customSetup={{
+          dependencies: {
+            "react": "^18.2.0",
+            "react-dom": "^18.2.0"
+          }
+        }}
         options={{
           visibleFiles: Object.keys(sandpackFiles).filter(file => file.startsWith('/src')),
           activeFile: "/src/App.tsx"
