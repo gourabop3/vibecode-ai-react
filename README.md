@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 > AI-powered website creation platform
 
+*Deployed: 2024-12-19*
+
 ## Getting Started
 
 First, run the development server:
