@@ -47,22 +47,30 @@ export const FragmentSandpack = ({
   // Convert fragment files to Sandpack format - handle different data structures
   let files: { [path: string]: string } = {};
   
+  console.log("🔍 SANDPACK COMPONENT RENDERED");
   console.log("Raw fragment object:", fragment);
   console.log("Raw fragment.files:", fragment.files);
   console.log("Type of fragment.files:", typeof fragment.files);
   
   // Handle different possible data formats
   if (fragment.files) {
+    console.log("✅ Fragment has files");
     if (typeof fragment.files === 'string') {
+      console.log("📄 Files are stored as string, parsing...");
       try {
         files = JSON.parse(fragment.files);
       } catch (e) {
-        console.error("Failed to parse fragment.files as JSON:", e);
+        console.error("❌ Failed to parse fragment.files as JSON:", e);
         files = {};
       }
-    } else if (typeof fragment.files === 'object') {
+    } else if (typeof fragment.files === 'object' && fragment.files !== null) {
+      console.log("📦 Files are stored as object, using directly...");
       files = fragment.files as { [path: string]: string };
+    } else {
+      console.log("❓ Unknown fragment.files format:", typeof fragment.files);
     }
+  } else {
+    console.log("❌ Fragment has no files property");
   }
   
   console.log("Processed files object:", files);
@@ -141,13 +149,16 @@ export default App;`;
         }
       }
       
-      console.log("Using AI-generated app content");
+      console.log("✅ Using AI-generated app content");
     } else {
+      console.log("❌ No main App file found, searching for other React components...");
       // If no main App file, try to use any React component
       const reactFiles = Object.entries(files).filter(([path, content]) => 
         content && (content.includes('function ') || content.includes('const ') || content.includes('class ')) &&
         (path.endsWith('.tsx') || path.endsWith('.jsx') || path.endsWith('.js'))
       );
+      
+      console.log("Found React files:", reactFiles.map(([path]) => path));
       
       if (reactFiles.length > 0) {
         const [, componentContent] = reactFiles[0];
