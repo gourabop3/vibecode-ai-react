@@ -110,6 +110,8 @@ export default App;`;
 
   // Process fragment files if they exist
   console.log("Fragment files:", files);
+  console.log("Files object keys:", Object.keys(files || {}));
+  console.log("Files object length:", Object.keys(files || {}).length);
   
   if (files && Object.keys(files).length > 0) {
     // Look for App component in various locations and path formats

@@ -201,6 +201,11 @@ export const codeAgentFunction = inngest.createFunction(
 
         const isError = !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0;
 
+        // Debug: Log the files being saved
+        console.log("Files about to be saved to fragment:", result.state.data.files);
+        console.log("Number of files:", Object.keys(result.state.data.files || {}).length);
+        console.log("Summary:", result.state.data.summary);
+
         // No sandbox URL needed - Sandpack will handle the preview
         const sandboxUrl = "sandpack://preview";
 
