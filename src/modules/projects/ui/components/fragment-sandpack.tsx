@@ -333,21 +333,6 @@ code {
     <meta name="description" content="React app created with AI" />
     <title>React App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      // Configure Tailwind with proper settings
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-            }
-          }
-        },
-        corePlugins: {
-          preflight: true,
-        }
-      }
-    </script>
         <style>
       /* Ensure base styles and proper Tailwind loading */
       body { 
