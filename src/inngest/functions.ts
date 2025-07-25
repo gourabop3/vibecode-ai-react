@@ -69,37 +69,47 @@ export const codeAgentFunction = inngest.createFunction(
             tools : [
                 createTool({
                     name : "writeFiles",
-                    description: "Create or update React files for the application.",
+                    description: "Create or update React files for the application. Use this to save all the React component files.",
                     parameters: z.object({
                         files: z.array(z.object({
-                            path : z.string(),
-                            content : z.string()
-                        })),
+                            path : z.string().describe("File path relative to project root, e.g., 'src/App.js' or 'src/components/Button.js'"),
+                            content : z.string().describe("Complete file content as a string")
+                        })).describe("Array of files to create or update"),
                     }),
                     handler: async(
                         { files },
                         { step, network } : Tool.Options<AgentState>
                     ) => {
+                        console.log(`writeFiles called with ${files.length} files`);
+                        
                         const newFiles =  await step?.run("create-or-update-files", async()=>{
                             try {
-                                const updatedFiles = network.state.data.files || {};
+                                const updatedFiles = { ...(network.state.data.files || {}) };
                                 
                                 // Add React files to the state
                                 for (const file of files) {
+                                    if (!file.path || !file.content) {
+                                        console.error("Invalid file object:", file);
+                                        continue;
+                                    }
                                     updatedFiles[file.path] = file.content;
-                                    console.log(`Added/Updated file: ${file.path}`);
+                                    console.log(`✅ Added/Updated file: ${file.path} (${file.content.length} chars)`);
                                 }
+                                
+                                console.log(`Total files in state: ${Object.keys(updatedFiles).length}`);
                                 return updatedFiles;
                             } catch (error) {
-                                return `Error creating or updating files: ${error}`;
+                                console.error("Error in writeFiles:", error);
+                                return network.state.data.files || {};
                             }
                         });
 
-                        if (typeof newFiles === "object") {
+                        if (typeof newFiles === "object" && newFiles !== null) {
                             network.state.data.files = newFiles;
+                            return `Successfully created/updated ${files.length} files. Total files: ${Object.keys(newFiles).length}`;
+                        } else {
+                            return "Error: Failed to update files in state";
                         }
-                        
-                        return "Files created/updated successfully";
                     }
                 }),
                 createTool({
@@ -118,7 +128,7 @@ export const codeAgentFunction = inngest.createFunction(
                                     const content = currentFiles[file] || "File not found";
                                     contents.push({ path: file, content });
                                 }
-                                return `Files read successfully: ${JSON.stringify(contents)}`;
+                                return JSON.stringify(contents);
                             } catch (error) {
                                 return `Error reading files: ${error}`;
                             }
@@ -153,7 +163,26 @@ export const codeAgentFunction = inngest.createFunction(
             }
         });
 
-        const result = await network.run(event.data.value, { state });
+        console.log("Starting network run with input:", event.data.value);
+        
+        let result;
+        try {
+            result = await network.run(event.data.value, { state });
+            console.log("Network run completed successfully");
+            console.log("Final state summary:", result.state.data.summary);
+            console.log("Final state files:", Object.keys(result.state.data.files || {}));
+        } catch (error) {
+            console.error("Network run failed:", error);
+            // Create a fallback result
+            result = {
+                state: {
+                    data: {
+                        summary: `<task_summary>Error occurred during code generation: ${error}</task_summary>`,
+                        files: {}
+                    }
+                }
+            };
+        }
         
         const fragmentTitleGenerator = createAgent({
             name : "fragment-title-generator",
