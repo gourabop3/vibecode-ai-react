@@ -112,13 +112,13 @@ export const codeAgentFunction = inngest.createFunction(
                         return await step?.run("read-files", async()=>{
                             try {
                                 const currentFiles = network.state.data.files || {};
-                                const contents: Record<string, string>[] = [];
+                                const contents: { path: string; content: string }[] = [];
                                 
                                 for (const file of files) {
                                     const content = currentFiles[file] || "File not found";
-                                    contents.push({path: file, content});
+                                    contents.push({ path: file, content });
                                 }
-                                return JSON.stringify(contents);
+                                return `Files read successfully: ${JSON.stringify(contents)}`;
                             } catch (error) {
                                 return `Error reading files: ${error}`;
                             }
