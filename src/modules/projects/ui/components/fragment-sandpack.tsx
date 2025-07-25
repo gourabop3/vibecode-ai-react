@@ -234,8 +234,29 @@ root.render(<App />);`;
       <div className="flex-1">
         <SandpackProvider
           key={sandpackKey}
-          template="react"
-          files={sandpackFiles}
+          template="vanilla"
+          files={{
+            "/index.html": `<!DOCTYPE html>
+<html>
+<head>
+  <title>React App</title>
+  <meta charset="UTF-8" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    ${appContent.replace(/import.*from.*['"];?\n/g, '').replace('export default App;', '')}
+    
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+</html>`
+          }}
           theme="light"
         >
           <SandpackPreview 
