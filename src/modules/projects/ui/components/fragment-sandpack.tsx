@@ -52,20 +52,21 @@ export const FragmentSandpack = ({
   console.log("Raw fragment.files:", fragment.files);
   console.log("Type of fragment.files:", typeof fragment.files);
   
-  // Handle different possible data formats
+  // Handle different possible data formats - create a new object to avoid readonly issues
   if (fragment.files) {
     console.log("✅ Fragment has files");
     if (typeof fragment.files === 'string') {
       console.log("📄 Files are stored as string, parsing...");
       try {
-        files = JSON.parse(fragment.files);
+        const parsed = JSON.parse(fragment.files);
+        files = { ...parsed }; // Create new object to avoid readonly issues
       } catch (e) {
         console.error("❌ Failed to parse fragment.files as JSON:", e);
         files = {};
       }
     } else if (typeof fragment.files === 'object' && fragment.files !== null) {
-      console.log("📦 Files are stored as object, using directly...");
-      files = fragment.files as { [path: string]: string };
+      console.log("📦 Files are stored as object, creating copy...");
+      files = { ...(fragment.files as { [path: string]: string }) }; // Create new object to avoid readonly issues
     } else {
       console.log("❓ Unknown fragment.files format:", typeof fragment.files);
     }
@@ -75,8 +76,8 @@ export const FragmentSandpack = ({
   
   console.log("Processed files object:", files);
   
-  // Create a stable key for Sandpack to prevent re-renders
-  const sandpackKey = JSON.stringify(Object.keys(files || {})).substring(0, 20);
+  // Create a stable key for Sandpack to prevent re-renders and readonly issues
+  const sandpackKey = `sandpack-${fragment.id || 'default'}-${Object.keys(files || {}).length}`;
   
   // Create minimal sandpack files
   const sandpackFiles: { [key: string]: string } = {};
@@ -183,38 +184,52 @@ export default App;`;
     }
   }
 
-  // Set up complete files for Sandpack
+  // Set up complete files for Sandpack with safety checks
   // Add all AI-generated files to Sandpack
-  Object.entries(files).forEach(([path, content]) => {
-    // Use files directly since they should now be JavaScript
-    let sandpackPath = path;
-    const sandpackContent = content;
-    
-    // Convert any remaining .tsx/.ts extensions to .js (shouldn't happen with new prompt)
-    if (path.endsWith('.tsx') || path.endsWith('.ts')) {
-      sandpackPath = path.replace(/\.tsx?$/, '.js');
-    }
-    
-    sandpackFiles[`/${sandpackPath}`] = sandpackContent;
-  });
+  try {
+    Object.entries(files || {}).forEach(([path, content]) => {
+      // Create new variables to avoid readonly issues
+      let sandpackPath = String(path);
+      let sandpackContent = String(content || '');
+      
+      // Convert any remaining .tsx/.ts extensions to .js (shouldn't happen with new prompt)
+      if (sandpackPath.endsWith('.tsx') || sandpackPath.endsWith('.ts')) {
+        sandpackPath = sandpackPath.replace(/\.tsx?$/, '.js');
+      }
+      
+      // Ensure path starts with /
+      if (!sandpackPath.startsWith('/')) {
+        sandpackPath = `/${sandpackPath}`;
+      }
+      
+      // Create new property in sandpackFiles object
+      sandpackFiles[sandpackPath] = sandpackContent;
+    });
+  } catch (error) {
+    console.error("Error processing files for Sandpack:", error);
+  }
   
   // Add essential React files with Sandpack-compatible packages
-  sandpackFiles["/package.json"] = JSON.stringify({
-    dependencies: {
-      react: "^18.0.0",
-      "react-dom": "^18.0.0",
-      uuid: "^9.0.0",
-      clsx: "^2.0.0",
-      "date-fns": "^2.30.0"
-    }
-  }, null, 2);
-  
-  sandpackFiles["/index.js"] = `import React from 'react';
+  try {
+    sandpackFiles["/package.json"] = JSON.stringify({
+      dependencies: {
+        react: "^18.0.0",
+        "react-dom": "^18.0.0",
+        uuid: "^9.0.0",
+        clsx: "^2.0.0",
+        "date-fns": "^2.30.0"
+      }
+    }, null, 2);
+    
+    sandpackFiles["/index.js"] = `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './src/App.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`;
+  } catch (error) {
+    console.error("Error creating essential files:", error);
+  }
   
      console.log("Final sandpack files:", Object.keys(sandpackFiles));
    console.log("Converted App.js content:", sandpackFiles["/src/App.js"]?.substring(0, 500) + "...");
