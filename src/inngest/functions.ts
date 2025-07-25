@@ -68,7 +68,7 @@ export const codeAgentFunction = inngest.createFunction(
             }),
             tools : [
                 createTool({
-                    name : "createOrUpdateFiles",
+                    name : "createFiles",
                     description: "Create or update React files for the application.",
                     parameters: z.object({
                         files: z.array(z.object({
