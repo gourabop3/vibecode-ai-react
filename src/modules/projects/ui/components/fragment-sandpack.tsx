@@ -240,12 +240,18 @@ export default App;`);
         "react-scripts": "5.0.1",
         uuid: "^9.0.0",
         clsx: "^2.0.0",
-        "date-fns": "^2.30.0"
+        "date-fns": "^2.30.0",
+        tailwindcss: "^3.4.0",
+        autoprefixer: "^10.4.16",
+        postcss: "^8.4.31"
+      },
+      devDependencies: {
+        "@craco/craco": "^7.1.0"
       },
       scripts: {
-        start: "react-scripts start",
-        build: "react-scripts build",
-        test: "react-scripts test",
+        start: "craco start",
+        build: "craco build",
+        test: "craco test",
         eject: "react-scripts eject"
       },
       eslintConfig: {
@@ -270,8 +276,12 @@ root.render(
   </React.StrictMode>
 );`;
 
-    // index.css with proper base styles (no Tailwind imports since we use CDN)
-    const indexCss = `/* Modern CSS Reset */
+    // index.css with proper Tailwind imports
+    const indexCss = `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Modern CSS Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -299,30 +309,9 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-/* Ensure Tailwind utilities work properly */
-.min-h-screen {
-  min-height: 100vh !important;
-}
-
-.flex {
-  display: flex !important;
-}
-
-.items-center {
-  align-items: center !important;
-}
-
-.justify-center {
-  justify-content: center !important;
-}
-
-.text-center {
-  text-align: center !important;
 }`;
 
-    // public/index.html
+        // public/index.html
     const indexHtml = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -332,45 +321,10 @@ code {
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="React app created with AI" />
     <title>React App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-      /* Ensure base styles and proper Tailwind loading */
-      body { 
-        margin: 0; 
-        padding: 0; 
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
-      }
-      #root { 
-        min-height: 100vh; 
-      }
-      
-      /* Wait for Tailwind to load before showing content */
-      .tailwind-ready {
-        opacity: 1;
-        transition: opacity 0.3s ease-in-out;
-      }
-      
-      .tailwind-loading {
-        opacity: 0;
-      }
-    </style>
-    <script>
-      // Ensure Tailwind is fully loaded before showing content
-      document.addEventListener('DOMContentLoaded', function() {
-        // Wait a bit for Tailwind to process classes
-        setTimeout(() => {
-          const root = document.getElementById('root');
-          if (root) {
-            root.classList.remove('tailwind-loading');
-            root.classList.add('tailwind-ready');
-          }
-        }, 100);
-      });
-    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root" class="tailwind-loading"></div>
+    <div id="root"></div>
   </body>
 </html>`;
 
@@ -382,7 +336,11 @@ module.exports = {
     "./public/index.html",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
   darkMode: 'class',
@@ -447,6 +405,31 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
     newSandpackFiles["/src/index.css"] = indexCss;
     newSandpackFiles["/public/index.html"] = indexHtml;
     newSandpackFiles["/tailwind.config.js"] = tailwindConfig;
+    
+    // postcss.config.js
+    const postcssConfig = `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}`;
+
+    // craco.config.js
+    const cracoConfig = `const path = require('path');
+
+module.exports = {
+  style: {
+    postcss: {
+      plugins: [
+        require('tailwindcss'),
+        require('autoprefixer'),
+      ],
+    },
+  },
+}`;
+
+    newSandpackFiles["/postcss.config.js"] = postcssConfig;
+    newSandpackFiles["/craco.config.js"] = cracoConfig;
     newSandpackFiles["/.gitignore"] = gitignore;
     newSandpackFiles["/README.md"] = readme;
     
