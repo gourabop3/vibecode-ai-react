@@ -334,7 +334,7 @@ code {
     <title>React App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      // Configure Tailwind for better compatibility
+      // Configure Tailwind with proper settings
       tailwind.config = {
         theme: {
           extend: {
@@ -345,91 +345,47 @@ code {
         },
         corePlugins: {
           preflight: true,
-        },
-        important: true
+        }
       }
     </script>
-    <style>
-      /* Ensure base styles are applied immediately */
-      body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
-      #root { min-height: 100vh; }
+        <style>
+      /* Ensure base styles and proper Tailwind loading */
+      body { 
+        margin: 0; 
+        padding: 0; 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+      }
+      #root { 
+        min-height: 100vh; 
+      }
       
-      /* Force key Tailwind classes to work */
-      .min-h-screen { min-height: 100vh !important; }
-      .bg-gray-50 { background-color: #f9fafb !important; }
-      .bg-white { background-color: #ffffff !important; }
-      .bg-blue-600 { background-color: #2563eb !important; }
-      .bg-blue-700 { background-color: #1d4ed8 !important; }
-      .text-gray-900 { color: #111827 !important; }
-      .text-gray-600 { color: #4b5563 !important; }
-      .text-white { color: #ffffff !important; }
-      .flex { display: flex !important; }
-      .items-center { align-items: center !important; }
-      .justify-center { justify-content: center !important; }
-      .text-center { text-align: center !important; }
-      .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
-      .px-6 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
-      .py-3 { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
-      .mb-4 { margin-bottom: 1rem !important; }
-      .mb-8 { margin-bottom: 2rem !important; }
-      .rounded-lg { border-radius: 0.5rem !important; }
-      .font-bold { font-weight: 700 !important; }
-      .font-medium { font-weight: 500 !important; }
-      .text-4xl { font-size: 2.25rem !important; line-height: 2.5rem !important; }
-      .text-lg { font-size: 1.125rem !important; line-height: 1.75rem !important; }
-      .transition-colors { transition-property: color, background-color, border-color !important; transition-duration: 0.15s !important; }
-      .hover\\:bg-blue-700:hover { background-color: #1d4ed8 !important; }
-      .hover\\:bg-gray-50:hover { background-color: #f9fafb !important; }
-      .border { border-width: 1px !important; }
-             .border-gray-300 { border-color: #d1d5db !important; }
-       .gap-1 { gap: 0.25rem !important; }
-       .gap-2 { gap: 0.5rem !important; }
-       .gap-3 { gap: 0.75rem !important; }
-       .gap-4 { gap: 1rem !important; }
-       .gap-6 { gap: 1.5rem !important; }
-       .gap-8 { gap: 2rem !important; }
-       .space-y-1 > * + * { margin-top: 0.25rem !important; }
-       .space-y-2 > * + * { margin-top: 0.5rem !important; }
-       .space-y-3 > * + * { margin-top: 0.75rem !important; }
-       .space-y-4 > * + * { margin-top: 1rem !important; }
-       .space-y-6 > * + * { margin-top: 1.5rem !important; }
-       .space-y-8 > * + * { margin-top: 2rem !important; }
-       .space-x-2 > * + * { margin-left: 0.5rem !important; }
-       .space-x-3 > * + * { margin-left: 0.75rem !important; }
-       .space-x-4 > * + * { margin-left: 1rem !important; }
-       .m-1 { margin: 0.25rem !important; }
-       .m-2 { margin: 0.5rem !important; }
-       .m-4 { margin: 1rem !important; }
-       .mt-1 { margin-top: 0.25rem !important; }
-       .mt-2 { margin-top: 0.5rem !important; }
-       .mt-4 { margin-top: 1rem !important; }
-       .mt-6 { margin-top: 1.5rem !important; }
-       .mt-8 { margin-top: 2rem !important; }
-       .mb-1 { margin-bottom: 0.25rem !important; }
-       .mb-2 { margin-bottom: 0.5rem !important; }
-       .mb-3 { margin-bottom: 0.75rem !important; }
-       .mb-6 { margin-bottom: 1.5rem !important; }
-       .ml-2 { margin-left: 0.5rem !important; }
-       .ml-4 { margin-left: 1rem !important; }
-       .mr-2 { margin-right: 0.5rem !important; }
-       .mr-4 { margin-right: 1rem !important; }
-       .p-1 { padding: 0.25rem !important; }
-       .p-2 { padding: 0.5rem !important; }
-       .p-3 { padding: 0.75rem !important; }
-       .p-8 { padding: 2rem !important; }
-       .pt-2 { padding-top: 0.5rem !important; }
-       .pt-4 { padding-top: 1rem !important; }
-       .pt-6 { padding-top: 1.5rem !important; }
-       .pb-2 { padding-bottom: 0.5rem !important; }
-       .pb-4 { padding-bottom: 1rem !important; }
-       .pb-6 { padding-bottom: 1.5rem !important; }
-       .pl-3 { padding-left: 0.75rem !important; }
-       .pr-3 { padding-right: 0.75rem !important; }
+      /* Wait for Tailwind to load before showing content */
+      .tailwind-ready {
+        opacity: 1;
+        transition: opacity 0.3s ease-in-out;
+      }
+      
+      .tailwind-loading {
+        opacity: 0;
+      }
     </style>
+    <script>
+      // Ensure Tailwind is fully loaded before showing content
+      document.addEventListener('DOMContentLoaded', function() {
+        // Wait a bit for Tailwind to process classes
+        setTimeout(() => {
+          const root = document.getElementById('root');
+          if (root) {
+            root.classList.remove('tailwind-loading');
+            root.classList.add('tailwind-ready');
+          }
+        }, 100);
+      });
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root" class="tailwind-loading"></div>
   </body>
 </html>`;
 

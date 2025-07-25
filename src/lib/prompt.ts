@@ -220,6 +220,29 @@ MODERN LAYOUT PATTERNS - Always use these:
   <div className="bg-white rounded-xl shadow-lg p-6">
     {/* Card content */}
   </div>
+
+CRITICAL SPACING RULES - NEVER let elements touch:
+  // Todo app input form - ALWAYS use proper spacing
+  <div className="flex gap-4 mb-6">
+    <input className="flex-1 p-3 border border-gray-300 rounded-lg" />
+    <button className="px-6 py-3 bg-blue-600 text-white rounded-lg">Add</button>
+  </div>
+
+  // Todo list - ALWAYS use space-y-4 for vertical spacing
+  <div className="space-y-4">
+    {todos.map(todo => (
+      <div key={todo.id} className="p-4 bg-white rounded-lg shadow border">
+        {todo.text}
+      </div>
+    ))}
+  </div>
+
+  // Form fields - ALWAYS separate with mb-4 or space-y-4
+  <div className="space-y-4">
+    <input className="w-full p-3 border border-gray-300 rounded-lg" />
+    <input className="w-full p-3 border border-gray-300 rounded-lg" />
+    <button className="w-full p-3 bg-blue-600 text-white rounded-lg">Submit</button>
+  </div>
 - Do not use local or external image URLs — instead rely on emojis and divs with proper aspect ratios (aspect-video, aspect-square, etc.) and color placeholders (e.g. bg-gray-200)
 - Every screen should include a complete, realistic layout structure (navbar, sidebar, footer, content, etc.) — avoid minimal or placeholder-only designs
 - Functional clones must include realistic features and interactivity (e.g. drag-and-drop, add/edit/delete, toggle states, localStorage if helpful)
