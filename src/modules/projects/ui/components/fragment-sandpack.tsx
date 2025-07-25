@@ -49,8 +49,11 @@ export const FragmentSandpack = ({
   
   console.log("🔍 SANDPACK COMPONENT RENDERED");
   console.log("Raw fragment object:", fragment);
+  console.log("Fragment ID:", fragment.id);
+  console.log("Fragment title:", fragment.title);
   console.log("Raw fragment.files:", fragment.files);
   console.log("Type of fragment.files:", typeof fragment.files);
+  console.log("Fragment.files is null/undefined:", fragment.files == null);
   
   // Handle different possible data formats - create a new object to avoid readonly issues
   if (fragment.files) {
@@ -209,6 +212,12 @@ export default App;`;
     console.error("Error processing files for Sandpack:", error);
   }
   
+  // Ensure App.js is always present in sandpackFiles
+  if (!sandpackFiles["/src/App.js"]) {
+    console.log("⚠️ App.js not found in sandpackFiles, adding processed appContent");
+    sandpackFiles["/src/App.js"] = appContent;
+  }
+  
   // Add essential React files with Sandpack-compatible packages
   try {
     sandpackFiles["/package.json"] = JSON.stringify({
@@ -284,6 +293,8 @@ code {
             showOpenInCodeSandbox={false}
             showRefreshButton={false}
             style={{ height: "100%", width: "100%", flex: 1 }}
+            onLoadStart={() => console.log("🔄 Sandpack loading started")}
+            onLoadEnd={() => console.log("✅ Sandpack loaded successfully")}
           />
         </SandpackProvider>
       </div>
