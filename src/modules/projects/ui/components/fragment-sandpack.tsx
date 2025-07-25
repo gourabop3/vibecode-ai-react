@@ -183,10 +183,49 @@ export default App;`;
     }
   }
 
-  // Set up minimal files
-  sandpackFiles["/App.js"] = appContent;
+  // Set up complete files for Sandpack
+  // Add all AI-generated files to Sandpack
+  Object.entries(files).forEach(([path, content]) => {
+    // Convert TypeScript files to JavaScript for Sandpack
+    let sandpackPath = path;
+    let sandpackContent = content;
+    
+    // Convert .tsx to .js and remove TypeScript syntax
+    if (path.endsWith('.tsx') || path.endsWith('.ts')) {
+      sandpackPath = path.replace(/\.tsx?$/, '.js');
+      // Simple TypeScript to JavaScript conversion
+      sandpackContent = content
+        .replace(/import\s+.*\s+from\s+['"]lucide-react['"];?/g, '') // Remove lucide-react imports
+        .replace(/:\s*React\.FC.*?=/g, ' =') // Remove React.FC types
+        .replace(/:\s*\w+(\[\])?/g, '') // Remove type annotations
+        .replace(/interface\s+\w+\s*{[^}]*}/g, '') // Remove interfaces
+        .replace(/export\s+interface.*$/gm, '') // Remove export interfaces
+        .replace(/<\w+.*?>/g, (match) => {
+          // Replace TypeScript generics but keep JSX
+          if (match.includes('className') || match.includes('onClick')) return match;
+          return '';
+        });
+    }
+    
+    sandpackFiles[`/${sandpackPath}`] = sandpackContent;
+  });
   
-  console.log("Final app content being used:", appContent);
+  // Add essential React files
+  sandpackFiles["/package.json"] = JSON.stringify({
+    dependencies: {
+      react: "^18.0.0",
+      "react-dom": "^18.0.0"
+    }
+  }, null, 2);
+  
+  sandpackFiles["/index.js"] = `import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './src/App.js';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);`;
+  
+  console.log("Final sandpack files:", Object.keys(sandpackFiles));
   
   // TEMPORARY TEST: Force some content to see if Sandpack works
   if (appContent.includes("Welcome to Your React App")) {
@@ -204,29 +243,9 @@ export default App;`;
       <div className="flex-1">
         <SandpackProvider
           key={sandpackKey}
-          template="vanilla"
-          files={{
-            "/index.html": `<!DOCTYPE html>
-<html>
-<head>
-  <title>React App</title>
-  <meta charset="UTF-8" />
-</head>
-<body>
-  <div id="app"></div>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script type="text/babel">
-    ${appContent.replace('export default App;', '')}
-    
-    const root = ReactDOM.createRoot(document.getElementById('app'));
-    root.render(React.createElement(App));
-  </script>
-</body>
-</html>`
-                     }}
-           theme="light"
+          template="react"
+          files={sandpackFiles}
+          theme="light"
         >
           <SandpackPreview 
             showOpenInCodeSandbox={false}
