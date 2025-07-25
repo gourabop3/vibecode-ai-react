@@ -24,170 +24,8 @@ export const codeAgentFunction = inngest.createFunction(
     { event: "code-agent/run" },
     async ({ event, step }) => {
 
-        const sandboxId = await step.run("get-sandbox-id", async () => {
-            try {
-                const sandbox = await Sandbox.create(); // Use default template for React app
-                console.log("Created E2B sandbox:", sandbox.sandboxId);
-                return sandbox.sandboxId;
-            } catch (error) {
-                console.error("Failed to create E2B sandbox:", error);
-                throw error;
-            }
-        });
-
-        await step.run("setup-react-app", async () => {
-            try {
-                const sandbox = await getSandbox(sandboxId);
-                console.log("Setting up React app in sandbox:", sandboxId);
-            
-            // Create basic React app structure with files
-            const packageJson = {
-                name: "react-app",
-                version: "0.1.0",
-                private: true,
-                dependencies: {
-                    "react": "^18.2.0",
-                    "react-dom": "^18.2.0",
-                    "react-scripts": "5.0.1",
-                    "typescript": "^4.4.2",
-                    "tailwindcss": "^3.3.0",
-                    "autoprefixer": "^10.4.14",
-                    "postcss": "^8.4.24",
-                    "@tailwindcss/forms": "^0.5.3",
-                    "@tailwindcss/typography": "^0.5.9",
-                    "lucide-react": "^0.263.1",
-                    "class-variance-authority": "^0.7.0",
-                    "clsx": "^1.2.1",
-                    "tailwind-merge": "^1.13.2"
-                },
-                scripts: {
-                    start: "react-scripts start",
-                    build: "react-scripts build",
-                    test: "react-scripts test",
-                    eject: "react-scripts eject"
-                },
-                browserslist: {
-                    production: [">0.2%", "not dead", "not op_mini all"],
-                    development: ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
-                }
-            };
-
-            // Write package.json
-            await sandbox.files.write("package.json", JSON.stringify(packageJson, null, 2));
-            
-            // Create public/index.html
-            await sandbox.files.write("public/index.html", `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="React app created with AI" />
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
-</html>`);
-
-            // Create src/index.tsx
-            await sandbox.files.write("src/index.tsx", `import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);`);
-
-            // Create src/index.css with Tailwind
-            await sandbox.files.write("src/index.css", `@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}`);
-
-            // Create src/App.tsx
-            await sandbox.files.write("src/App.tsx", `import React from 'react';
-
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome to Your React App
-        </h1>
-        <p className="text-lg text-gray-600">
-          Start building something amazing!
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export default App;`);
-
-            // Create tailwind.config.js
-            await sandbox.files.write("tailwind.config.js", `/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
-  theme: {
-    extend: {},
-  },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
-}`);
-
-            // Create tsconfig.json
-            await sandbox.files.write("tsconfig.json", `{
-  "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "es6"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
-  },
-  "include": ["src"]
-}`);
-
-            // Install dependencies
-            await sandbox.commands.run("npm install", {
-                onStdout: (data) => console.log("npm install:", data),
-                onStderr: (data) => console.error("npm install error:", data)
-            });
-            
-            return "React app setup complete";
-        });
+        // No need for E2B sandbox - we'll use Sandpack for preview
+        console.log("Generating React app files for project:", event.data.projectId);
 
         const previousMessages = await step.run("get-previous-messages", async () => {
             const formattedMessages : Message[] = [];
@@ -230,37 +68,8 @@ module.exports = {
             }),
             tools : [
                 createTool({
-                    name : "terminal",
-                    description: "Use the terminal to run shell commands.",
-                    parameters : z.object({
-                        command : z.string()
-                    }),
-                    handler: async({ command }, { step }) => {
-                        return await step?.run("terminal", async()=>{
-                            const buffers = { stdout: "", stderr: "" };
-                            try {
-                                const sandbox = await getSandbox(sandboxId);
-                                const result = await sandbox.commands.run(command, {
-                                    onStdout: (data)=>{
-                                        buffers.stdout += data;
-                                    },
-                                    onStderr: (data)=>{
-                                        buffers.stderr += data;
-                                    }
-                                });
-                                return result.stdout
-                            } catch (error) {
-                                console.error(
-                                    `Command failed: ${error}\nstdout: ${buffers.stdout}\nstderr: ${buffers.stderr}`,
-                                );
-                                return `Command failed: ${error}\nstdout: ${buffers.stdout}\nstderr: ${buffers.stderr}`
-                            }
-                        })
-                    }
-                }),
-                createTool({
                     name : "createOrUpdateFiles",
-                    description: "Create or update files in the Sandbox.",
+                    description: "Create or update React files for the application.",
                     parameters: z.object({
                         files: z.array(z.object({
                             path : z.string(),
@@ -274,10 +83,11 @@ module.exports = {
                         const newFiles =  await step?.run("create-or-update-files", async()=>{
                             try {
                                 const updatedFiles = network.state.data.files || {};
-                                const sandbox = await getSandbox(sandboxId);
+                                
+                                // Add React files to the state
                                 for (const file of files) {
-                                    await sandbox.files.write(file.path, file.content);
                                     updatedFiles[file.path] = file.content;
+                                    console.log(`Added/Updated file: ${file.path}`);
                                 }
                                 return updatedFiles;
                             } catch (error) {
@@ -288,22 +98,24 @@ module.exports = {
                         if (typeof newFiles === "object") {
                             network.state.data.files = newFiles;
                         }
+                        
+                        return "Files created/updated successfully";
                     }
                 }),
                 createTool({
                     name : "readFiles",
-                    description: "Read files from the Sandbox.",
+                    description: "Read files from the React application.",
                     parameters: z.object({
                         files: z.array(z.string())
                     }),
-                    handler: async ({ files }, { step })=>{
+                    handler: async ({ files }, { step, network })=>{
                         return await step?.run("read-files", async()=>{
                             try {
-                                
-                                const sandbox = await getSandbox(sandboxId);
+                                const currentFiles = network.state.data.files || {};
                                 const contents: Record<string, string>[] = [];
+                                
                                 for (const file of files) {
-                                    const content = await sandbox.files.read(file);
+                                    const content = currentFiles[file] || "File not found";
                                     contents.push({path: file, content});
                                 }
                                 return JSON.stringify(contents);
@@ -389,24 +201,8 @@ module.exports = {
 
         const isError = !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0;
 
-        const sandboxUrl = await step.run("get-sandbox-url", async () => {
-            const sandbox = await getSandbox(sandboxId);
-            
-            // Start the React development server in background
-            sandbox.commands.run("npm start", {
-                background: true,
-                onStdout: (data) => console.log("React server:", data),
-                onStderr: (data) => console.error("React server error:", data)
-            }).catch((error) => {
-                console.error("Failed to start React server:", error);
-            });
-            
-            // Wait for the server to start
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            
-            const host = sandbox.getHost(3000);
-            return `https://${host}`;
-        });
+        // No sandbox URL needed - Sandpack will handle the preview
+        const sandboxUrl = "sandpack://preview";
 
         await step.run("save-result", async ()=>{
 
