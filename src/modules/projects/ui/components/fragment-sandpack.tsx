@@ -193,18 +193,38 @@ export default App;`;
     // Convert .tsx to .js and remove TypeScript syntax
     if (path.endsWith('.tsx') || path.endsWith('.ts')) {
       sandpackPath = path.replace(/\.tsx?$/, '.js');
-      // Simple TypeScript to JavaScript conversion
+      // Comprehensive TypeScript to JavaScript conversion
       sandpackContent = content
-        .replace(/import\s+.*\s+from\s+['"]lucide-react['"];?/g, '') // Remove lucide-react imports
-        .replace(/:\s*React\.FC.*?=/g, ' =') // Remove React.FC types
-        .replace(/:\s*\w+(\[\])?/g, '') // Remove type annotations
-        .replace(/interface\s+\w+\s*{[^}]*}/g, '') // Remove interfaces
-        .replace(/export\s+interface.*$/gm, '') // Remove export interfaces
-        .replace(/<\w+.*?>/g, (match) => {
-          // Replace TypeScript generics but keep JSX
-          if (match.includes('className') || match.includes('onClick')) return match;
-          return '';
-        });
+        // Remove all imports from lucide-react and replace with empty components
+        .replace(/import\s+.*\s+from\s+['"]lucide-react['"];?/g, '')
+        // Replace lucide icon usage with simple div elements
+        .replace(/<(Plus|Moon|Sun|Check|Trash2?|Edit|Save|XCircle|X)(\s+[^>]*)?\/?>.*?<\/\1>|<(Plus|Moon|Sun|Check|Trash2?|Edit|Save|XCircle|X)(\s+[^>]*)?\s*\/>/g, '<div>•</div>')
+        .replace(/(Plus|Moon|Sun|Check|Trash2?|Edit|Save|XCircle|X)/g, '"•"')
+        // Remove TypeScript type annotations
+        .replace(/:\s*React\.FC.*?=/g, ' =')
+        .replace(/export\s+const\s+(\w+):\s*React\.FC.*?=/g, 'export const $1 =')
+        .replace(/const\s+(\w+):\s*React\.FC.*?=/g, 'const $1 =')
+        // Remove function parameter types
+        .replace(/\(\s*\w+:\s*[^)]+\)/g, (match) => {
+          return match.replace(/:\s*[^,)]+/g, '');
+        })
+        // Remove variable type annotations
+        .replace(/:\s*(string|number|boolean|\w+\[\]|\w+)/g, '')
+        // Remove useRef type parameters
+        .replace(/useRef<[^>]+>/g, 'useRef')
+        // Remove useState type parameters
+        .replace(/useState<[^>]+>/g, 'useState')
+        // Remove type definitions
+        .replace(/type\s+\w+\s*=.*?;/g, '')
+        // Remove interfaces completely
+        .replace(/interface\s+\w+\s*{[^}]*}/g, '')
+        .replace(/export\s+interface.*$/gm, '')
+        // Remove generic type parameters in JSX (but keep JSX)
+        .replace(/<(\w+)<[^>]*>/g, '<$1')
+        // Clean up any remaining type assertions
+        .replace(/\s+as\s+\w+/g, '')
+        // Remove optional chaining that might not work in older JS
+        .replace(/\?\./g, '.');
     }
     
     sandpackFiles[`/${sandpackPath}`] = sandpackContent;
@@ -225,7 +245,8 @@ import App from './src/App.js';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`;
   
-  console.log("Final sandpack files:", Object.keys(sandpackFiles));
+     console.log("Final sandpack files:", Object.keys(sandpackFiles));
+   console.log("Converted App.js content:", sandpackFiles["/src/App.js"]?.substring(0, 500) + "...");
   
   // TEMPORARY TEST: Force some content to see if Sandpack works
   if (appContent.includes("Welcome to Your React App")) {
