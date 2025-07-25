@@ -132,8 +132,7 @@ export const FileExplorer = ({
           editorHeight: 500,
           editorWidthPercentage: 60,
           wrapContent: true,
-          showConsole: true,
-          previewHeight: 200,
+          showConsole: true
         }}
       />
     </div>
