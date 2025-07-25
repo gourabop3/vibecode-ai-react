@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { inngest } from "./client";
-import { getSandbox, lastAssistantTextMessageContent } from "./utils";
+import { lastAssistantTextMessageContent } from "./utils";
 import {
     gemini,
     createAgent,
@@ -10,7 +10,7 @@ import {
     Message,
     createState
 } from "@inngest/agent-kit";
-import { Sandbox } from "@e2b/code-interpreter";
+
 import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from "@/lib/prompt";
 import { prisma } from "@/lib/db";
 
