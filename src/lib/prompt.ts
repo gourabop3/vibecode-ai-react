@@ -72,6 +72,8 @@ Instructions:
    - NO axios, lodash, react-router-dom (causes Sandpack connection issues)
    - Use fetch() instead of axios for HTTP requests
    - Write simple helper functions instead of lodash utilities
+   - ⚠️ NEVER import from non-existent files like '../utils/localStorage', '../helpers/api', etc.
+   - If you need utility functions, either write them inline or create the file first with writeFiles
 
 3. Component Architecture: Build components from scratch using React and Tailwind CSS. Create reusable UI components in the src/components/ directory. Use PropTypes for props validation if needed.
 
@@ -94,8 +96,15 @@ Instructions:
 7. File Structure:
    - Main app: src/App.js
    - Components: src/components/ComponentName.js
-   - Utils: src/utils/index.js (if needed)
-   - Hooks: src/hooks/useHookName.js (if needed)
+   - Utils: src/utils/index.js (if needed - must create the file first)
+   - Hooks: src/hooks/useHookName.js (if needed - must create the file first)
+
+8. Import Rules:
+   - NEVER import from files that don't exist (../utils/localStorage, ../helpers/api, etc.)
+   - If you need utility functions, create them inline or create the utility file first with writeFiles
+   - Only import from files you create in the same writeFiles call
+   - Use browser APIs directly: localStorage, fetch, Date, Math, etc.
+   - For localStorage: use localStorage.getItem() and localStorage.setItem() directly
 
 Additional Guidelines:
 - Think step-by-step before coding
@@ -137,7 +146,7 @@ Date handling - using date-fns:
   import { format, addDays } from 'date-fns';
   const formattedDate = format(new Date(), 'yyyy-MM-dd');
 
-Simple utilities - write helpers:
+Simple utilities - write helpers inline:
   const debounce = (func, delay) => {
     let timeoutId;
     return (...args) => {
@@ -145,6 +154,10 @@ Simple utilities - write helpers:
       timeoutId = setTimeout(() => func.apply(null, args), delay);
     };
   };
+
+Local Storage - use directly:
+  const savedData = localStorage.getItem('key');
+  localStorage.setItem('key', JSON.stringify(data));
 - Do not use local or external image URLs — instead rely on emojis and divs with proper aspect ratios (aspect-video, aspect-square, etc.) and color placeholders (e.g. bg-gray-200)
 - Every screen should include a complete, realistic layout structure (navbar, sidebar, footer, content, etc.) — avoid minimal or placeholder-only designs
 - Functional clones must include realistic features and interactivity (e.g. drag-and-drop, add/edit/delete, toggle states, localStorage if helpful)
