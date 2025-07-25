@@ -162,23 +162,31 @@ module.exports = {
   ],
 }`;
 
+  // Always ensure we have the base React app structure first
+  // Then add/override with fragment files
+  
   // Process the fragment files
-  Object.entries(files).forEach(([path, content]) => {
-    // Convert paths to match React structure
-    let sandpackPath = path;
-    
-    // If path doesn't start with src/, add it
-    if (!path.startsWith('src/') && !path.startsWith('/')) {
-      sandpackPath = `/src/${path}`;
-    } else if (path.startsWith('src/')) {
-      sandpackPath = `/${path}`;
-    }
-    
-    sandpackFiles[sandpackPath] = content;
-  });
+  if (files && Object.keys(files).length > 0) {
+    Object.entries(files).forEach(([path, content]) => {
+      // Convert paths to match React structure
+      let sandpackPath = path;
+      
+      // If path doesn't start with src/, add it
+      if (!path.startsWith('src/') && !path.startsWith('/')) {
+        sandpackPath = `/src/${path}`;
+      } else if (path.startsWith('src/')) {
+        sandpackPath = `/${path}`;
+      }
+      
+      // Only add valid React files
+      if (content && content.trim()) {
+        sandpackFiles[sandpackPath] = content;
+      }
+    });
+  }
 
-  // Ensure App.tsx exists
-  if (!sandpackFiles["/src/App.tsx"]) {
+  // Always ensure App.tsx exists with valid content
+  if (!sandpackFiles["/src/App.tsx"] || !sandpackFiles["/src/App.tsx"].trim()) {
     sandpackFiles["/src/App.tsx"] = `import React from 'react';
 
 function App() {
@@ -197,6 +205,18 @@ function App() {
 }
 
 export default App;`;
+  }
+
+  // Ensure App.tsx has proper React import and export
+  if (sandpackFiles["/src/App.tsx"] && !sandpackFiles["/src/App.tsx"].includes('import React')) {
+    sandpackFiles["/src/App.tsx"] = `import React from 'react';\n\n${sandpackFiles["/src/App.tsx"]}`;
+  }
+  
+  if (sandpackFiles["/src/App.tsx"] && !sandpackFiles["/src/App.tsx"].includes('export default')) {
+    sandpackFiles["/src/App.tsx"] = sandpackFiles["/src/App.tsx"].replace(/function App/, 'function App');
+    if (!sandpackFiles["/src/App.tsx"].includes('export default App')) {
+      sandpackFiles["/src/App.tsx"] += '\n\nexport default App;';
+    }
   }
 
   return (
