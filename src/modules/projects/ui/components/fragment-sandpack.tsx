@@ -44,9 +44,23 @@ export const FragmentSandpack = ({
   fragment
 }: Props) => {
   
+  // Early validation - ensure fragment exists
+  if (!fragment) {
+    console.error("FragmentSandpack: No fragment provided");
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        <p>No fragment available for preview.</p>
+      </div>
+    );
+  }
+  
   // Completely isolate and clone all fragment data to prevent readonly issues
   const safeFragment = useMemo(() => {
     try {
+      // Ensure fragment exists before cloning
+      if (!fragment) {
+        return { id: 'default', files: {} };
+      }
       // Deep clone the entire fragment to break any readonly references
       return JSON.parse(JSON.stringify(fragment));
     } catch (error) {
@@ -74,14 +88,34 @@ export const FragmentSandpack = ({
         console.log("📄 Files are stored as string, parsing...");
         try {
           const parsed = JSON.parse(safeFragment.files);
-          processedFiles = { ...parsed };
+          // Filter out any null/undefined keys from parsed object
+          if (parsed && typeof parsed === 'object') {
+            processedFiles = {};
+            Object.entries(parsed).forEach(([key, value]) => {
+              if (key && key !== null && key !== undefined && String(key).trim()) {
+                processedFiles[String(key).trim()] = String(value || '');
+              } else {
+                console.warn("Skipping invalid key in parsed files:", { key, value });
+              }
+            });
+          } else {
+            processedFiles = {};
+          }
         } catch (e) {
           console.error("❌ Failed to parse fragment.files as JSON:", e);
           processedFiles = {};
         }
       } else if (typeof safeFragment.files === 'object' && safeFragment.files !== null) {
         console.log("📦 Files are stored as object, creating copy...");
-        processedFiles = { ...safeFragment.files };
+        // Filter out any null/undefined keys from object
+        processedFiles = {};
+        Object.entries(safeFragment.files).forEach(([key, value]) => {
+          if (key && key !== null && key !== undefined && String(key).trim()) {
+            processedFiles[String(key).trim()] = String(value || '');
+          } else {
+            console.warn("Skipping invalid key in files object:", { key, value });
+          }
+        });
       } else {
         console.log("❓ Unknown fragment.files format:", typeof safeFragment.files);
         processedFiles = {};
@@ -202,9 +236,21 @@ export default App;`);
   // Process all AI-generated files for React template
   try {
     Object.entries(files || {}).forEach(([path, content]) => {
+      // Robust validation - ensure path is not null/undefined
+      if (!path || path === null || path === undefined) {
+        console.warn("Skipping file with null/undefined path:", { path, content });
+        return;
+      }
+      
       // Create completely new variables to avoid any readonly references
-      const filePath = String(path);
+      const filePath = String(path).trim();
       const fileContent = String(content || '');
+      
+      // Skip if path is empty after trimming
+      if (!filePath) {
+        console.warn("Skipping file with empty path:", { originalPath: path, content });
+        return;
+      }
       
       // Convert path format for Sandpack
       let sandpackPath = filePath;
@@ -215,8 +261,12 @@ export default App;`);
         sandpackPath = `/${sandpackPath}`;
       }
       
-                   // Directly assign to avoid readonly issues
-      newSandpackFiles[sandpackPath] = fileContent;
+      // Final validation before assignment
+      if (sandpackPath && sandpackPath.trim()) {
+        newSandpackFiles[sandpackPath] = fileContent;
+      } else {
+        console.warn("Skipping file with invalid sandpack path:", { originalPath: path, sandpackPath });
+      }
     });
   } catch (error) {
     console.error("Error processing AI files:", error);
@@ -422,6 +472,24 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
   return newSandpackFiles;
   }, [files, safeFragment]);
 
+  // Final validation of sandpack files before rendering
+  const validatedSandpackFiles = useMemo(() => {
+    const validated: { [key: string]: string } = {};
+    
+    Object.entries(sandpackFiles || {}).forEach(([path, content]) => {
+      // Ensure path is valid
+      if (path && typeof path === 'string' && path.trim()) {
+        const cleanPath = path.trim();
+        const cleanContent = typeof content === 'string' ? content : String(content || '');
+        validated[cleanPath] = cleanContent;
+      } else {
+        console.warn("Skipping invalid path in sandpack files:", { path, content: typeof content });
+      }
+    });
+    
+    return validated;
+  }, [sandpackFiles]);
+
   return (
     <div className="flex flex-col h-full w-full">
       <SandpackToolbar />
@@ -430,7 +498,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).`;
         <SandpackProvider
           key={sandpackKey}
           template="react"
-          files={sandpackFiles}
+          files={validatedSandpackFiles}
           theme="light"
           options={{
             visibleFiles: ["/src/App.js", "/src/index.js"],
