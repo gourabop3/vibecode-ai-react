@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment } from "@/generated/prisma"
-import { FileExplorer } from "@/components/file-explorer";
+import { useState } from "react";
 
 interface Props {
   fragment: Fragment
@@ -10,163 +10,49 @@ interface Props {
 export const FragmentCode = ({
   fragment
 }: Props) => {
-  // Get the files from the fragment
-  const fragmentFiles = fragment.files as { [path: string]: string };
-  
-  // Create complete React app structure (same as Sandpack)
-  const completeReactFiles: { [path: string]: string } = {};
-  
-  // Add complete package.json (matching Sandpack)
-  completeReactFiles["package.json"] = JSON.stringify({
-    name: "react-app",
-    version: "0.1.0",
-    private: true,
-    dependencies: {
-      react: "^18.0.0",
-      "react-dom": "^18.0.0",
-      "react-scripts": "5.0.1",
-      uuid: "^9.0.0",
-      clsx: "^2.0.0",
-      "date-fns": "^2.30.0"
-    },
-    scripts: {
-      start: "react-scripts start",
-      build: "react-scripts build",
-      test: "react-scripts test",
-      eject: "react-scripts eject"
-    },
-    eslintConfig: {
-      extends: ["react-app", "react-app/jest"]
-    },
-    browserslist: {
-      production: [">0.2%", "not dead", "not op_mini all"],
-      development: ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  const [selectedFile, setSelectedFile] = useState<string>("src/App.js");
+
+  // Parse fragment files safely
+  let fragmentFiles: { [path: string]: any } = {};
+  try {
+    if (fragment?.files) {
+      if (typeof fragment.files === 'string') {
+        fragmentFiles = JSON.parse(fragment.files);
+      } else {
+        fragmentFiles = fragment.files as { [path: string]: any };
+      }
     }
-  }, null, 2);
+  } catch (error) {
+    console.error("Error parsing fragment files:", error);
+    fragmentFiles = {};
+  }
 
-  // Add public/index.html
-  completeReactFiles["public/index.html"] = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="React app created with AI" />
-    <title>React App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
-</html>`;
-
-  // Add src/index.js
-  completeReactFiles["src/index.js"] = `import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);`;
-
-  // Add src/index.css with Tailwind
-  completeReactFiles["src/index.css"] = `@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-* {
-  box-sizing: border-box;
-}`;
-
-  // Add tailwind.config.js
-  completeReactFiles["tailwind.config.js"] = `/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "./public/index.html",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-  darkMode: 'class',
-}`;
-
-  // Add .gitignore
-  completeReactFiles[".gitignore"] = `# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*`;
-
-  // Add README.md
-  completeReactFiles["README.md"] = `# React App
-
-This project was created with AI and uses React 18 with Tailwind CSS.
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### \`npm start\`
-
-Runs the app in development mode.
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-### \`npm run build\`
-
-Builds the app for production to the \`build\` folder.
-
-### \`npm test\`
-
-Launches the test runner in interactive watch mode.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).`;
+  // Convert to simple file structure
+  const files: { [path: string]: string } = {};
+  
+  Object.entries(fragmentFiles).forEach(([path, fileData]) => {
+    let content = '';
+    if (typeof fileData === 'string') {
+      content = fileData;
+    } else if (fileData && typeof fileData === 'object' && 'code' in fileData) {
+      content = fileData.code;
+    } else {
+      content = String(fileData || '');
+    }
+    
+    if (content.trim()) {
+      // Clean up the path
+      let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+      if (!cleanPath.startsWith('src/') && !cleanPath.includes('.json') && !cleanPath.includes('.html')) {
+        cleanPath = `src/${cleanPath}`;
+      }
+      files[cleanPath] = content;
+    }
+  });
 
   // Add default App.js if not present
-  const defaultAppContent = `import React from 'react';
+  if (!files["src/App.js"]) {
+    files["src/App.js"] = `import React from 'react';
 
 function App() {
   return (
@@ -184,34 +70,41 @@ function App() {
 }
 
 export default App;`;
-
-  // Process fragment files and add/override them
-  if (fragmentFiles && Object.keys(fragmentFiles).length > 0) {
-    Object.entries(fragmentFiles).forEach(([path, content]) => {
-      // Convert paths to match React structure
-      let filePath = path;
-      
-      // If path doesn't start with src/, add it (except for config files)
-      if (!path.startsWith('src/') && !path.startsWith('public/') && 
-          !['package.json', 'tailwind.config.js', 'tsconfig.json'].includes(path)) {
-        filePath = `src/${path}`;
-      }
-      
-      // Only add valid files with content
-      if (content && content.trim()) {
-        completeReactFiles[filePath] = content;
-      }
-    });
   }
 
-  // Ensure App.js exists
-  if (!completeReactFiles["src/App.js"] || !completeReactFiles["src/App.js"].trim()) {
-    completeReactFiles["src/App.js"] = defaultAppContent;
-  }
+  const fileKeys = Object.keys(files);
+  const currentFile = files[selectedFile] || files[fileKeys[0]] || '';
 
   return (
-    <div className="h-full w-full">
-      <FileExplorer files={completeReactFiles} />
+    <div className="h-full w-full flex">
+      {/* File List */}
+      <div className="w-64 border-r bg-sidebar overflow-y-auto">
+        <div className="p-2">
+          <h3 className="font-semibold text-sm mb-2">Files</h3>
+          {fileKeys.map((filePath) => (
+            <div
+              key={filePath}
+              className={`p-2 text-sm cursor-pointer rounded hover:bg-accent ${
+                selectedFile === filePath ? 'bg-accent' : ''
+              }`}
+              onClick={() => setSelectedFile(filePath)}
+            >
+              {filePath}
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Code Viewer */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-4">
+          <div className="bg-muted rounded p-4">
+            <pre className="text-sm overflow-auto">
+              <code>{currentFile}</code>
+            </pre>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -97,10 +97,10 @@ root.render(<App />);`,
   </body>
 </html>`,
       
-      "/src/index.css": `@tailwind base;
-@tailwind components;
-@tailwind utilities;
+             "/src/index.css": `/* Import Tailwind CSS */
+@import 'https://cdn.tailwindcss.com/3.4.1';
 
+/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -108,10 +108,44 @@ root.render(<App />);`,
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;
   color: #1f2937;
-}`,
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Ensure Tailwind classes work */
+.min-h-screen { min-height: 100vh; }
+.bg-gray-50 { background-color: #f9fafb; }
+.bg-gray-100 { background-color: #f3f4f6; }
+.bg-blue-500 { background-color: #3b82f6; }
+.text-white { color: #ffffff; }
+.text-gray-900 { color: #111827; }
+.text-gray-600 { color: #4b5563; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.text-center { text-align: center; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.font-bold { font-weight: 700; }
+.mb-4 { margin-bottom: 1rem; }
+.p-4 { padding: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.border { border-width: 1px; }
+.border-gray-300 { border-color: #d1d5db; }
+.cursor-pointer { cursor: pointer; }
+.hover\\:bg-blue-700:hover { background-color: #1d4ed8; }
+.hover\\:bg-gray-50:hover { background-color: #f9fafb; }
+.transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }`,
       
       "/package.json": JSON.stringify({
         name: "react-app",
