@@ -45,8 +45,8 @@ export const ProjectView = ({
       <ResizablePanelGroup direction="horizontal" className="h-full w-full resizable-panel-group">
         <ResizablePanel
           defaultSize={35}
-          minSize={20}
-          maxSize={50}
+          minSize={15}
+          maxSize={70}
           className="flex flex-col min-h-0 overflow-hidden resizable-panel"
         >
           <Suspense fallback={<Loader/>}>
@@ -63,8 +63,8 @@ export const ProjectView = ({
         <ResizableHandle withHandle />
         <ResizablePanel
           defaultSize={65}
-          minSize={50}
-          maxSize={80}
+          minSize={30}
+          maxSize={85}
           className="flex flex-col min-h-0 overflow-hidden resizable-panel"
         >
           <Tabs
