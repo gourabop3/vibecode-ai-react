@@ -77,7 +77,7 @@ import App from './App';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`,
       
-             "/public/index.html": `<!DOCTYPE html>
+                           "/public/index.html": `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -91,6 +91,24 @@ root.render(<App />);`,
         }
       }
     </script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        height: 100%;
+        width: 100%;
+        overflow-x: hidden;
+      }
+      #root {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
@@ -223,27 +241,37 @@ body {
        });
      }
     
-    // Ensure we have an App.js
-    if (!files["/src/App.js"]) {
-      files["/src/App.js"] = `import React from 'react';
+         // Ensure we have an App.js
+     if (!files["/src/App.js"]) {
+       files["/src/App.js"] = `import React from 'react';
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome to Your React App
-        </h1>
-        <p className="text-lg text-gray-600">
-          Start building something amazing!
-        </p>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Welcome to Your React App
+          </h1>
+          <p className="text-lg text-gray-600 mb-8">
+            Start building something amazing!
+          </p>
+          <div className="flex gap-4 justify-center">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+              Get Started
+            </button>
+            <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors">
+              Learn More
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 export default App;`;
-    }
+     }
     
     console.log("🔍 Final Sandpack files:", Object.keys(files));
     return files;
@@ -260,38 +288,47 @@ export default App;`;
   const sandpackKey = `sandpack-${fragment.id}-${Object.keys(sandpackFiles).length}`;
   
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full overflow-hidden">
       <SandpackToolbar />
       
-      <div className="flex-1 min-h-0 h-full">
-        <SandpackProvider
-          key={sandpackKey}
-          template="react"
-          files={sandpackFiles}
-          theme="light"
-          customSetup={{
-            dependencies: {
-              "react": "^18.2.0",
-              "react-dom": "^18.2.0",
-              "lucide-react": "^0.469.0",
-              "date-fns": "^4.1.0",
-              "react-chartjs-2": "^5.3.0",
-              "chart.js": "^4.4.7"
-            }
-          }}
-          options={{
-            visibleFiles: ["/src/App.js"],
-            activeFile: "/src/App.js"
-          }}
-          style={{ height: "100%" }}
-        >
-          <SandpackPreview 
-            showOpenInCodeSandbox={false}
-            showRefreshButton={true}
-            showNavigator={true}
-            style={{ height: "100%" }}
-          />
-        </SandpackProvider>
+      <div className="flex-1 min-h-0 overflow-hidden">
+                  <SandpackProvider
+            key={sandpackKey}
+            template="react"
+            files={sandpackFiles}
+            theme="light"
+            customSetup={{
+              dependencies: {
+                "react": "^18.2.0",
+                "react-dom": "^18.2.0",
+                "lucide-react": "^0.469.0",
+                "date-fns": "^4.1.0",
+                "react-chartjs-2": "^5.3.0",
+                "chart.js": "^4.4.7"
+              }
+            }}
+            options={{
+              visibleFiles: ["/src/App.js"],
+              activeFile: "/src/App.js",
+              showConsole: false,
+              showConsoleButton: false,
+              editorHeight: 0,
+              layout: "preview"
+            }}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <SandpackPreview 
+              showOpenInCodeSandbox={false}
+              showRefreshButton={true}
+              showNavigator={true}
+              style={{ 
+                height: "100%", 
+                width: "100%",
+                display: "flex",
+                flexDirection: "column"
+              }}
+            />
+          </SandpackProvider>
       </div>
     </div>
   );
