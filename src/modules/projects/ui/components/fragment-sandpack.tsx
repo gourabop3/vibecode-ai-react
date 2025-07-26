@@ -159,54 +159,69 @@ body {
       }, null, 2)
     };
     
-    // Process AI-generated files
-    if (Object.keys(aiFiles).length > 0) {
-      Object.entries(aiFiles).forEach(([path, fileData]) => {
-        try {
-          let code = '';
-          if (typeof fileData === 'string') {
-            code = fileData;
-          } else if (fileData && typeof fileData === 'object' && 'code' in fileData) {
-            code = fileData.code;
-          } else {
-            code = String(fileData || '');
-          }
-          
-          if (code.trim()) {
-            // Clean up the path
-            let cleanPath = path.startsWith('/') ? path : `/${path}`;
-            
-            // Place component files in src directory
-            if (cleanPath.includes('components/') || (!cleanPath.includes('/src/') && cleanPath.endsWith('.js'))) {
-              if (cleanPath === '/App.js' || cleanPath.includes('App.js')) {
-                cleanPath = '/src/App.js';
-              } else {
-                const fileName = cleanPath.split('/').pop();
-                cleanPath = `/src/${fileName}`;
-              }
-            }
-            
-            // Fix imports in the code
-            code = code
-              .replace(/from\s+['"]\.\/components\/([^'"]+)['"]/g, 'from "./$1"')
-              .replace(/from\s+['"]\.\.\/components\/([^'"]+)['"]/g, 'from "./$1"')
-              .replace(/from\s+['"]\.\/([^'"]+)['"]/g, 'from "./$1"');
-            
-            // Ensure React import
-            if ((cleanPath.endsWith('.js') || cleanPath.endsWith('.jsx')) && 
-                (code.includes('function ') || code.includes('const ')) &&
-                !code.includes('import React')) {
-              code = `import React from 'react';\n${code}`;
-            }
-            
-            files[cleanPath] = code;
-            console.log(`✅ Added file: ${cleanPath}`);
-          }
-        } catch (error) {
-          console.error(`Error processing file ${path}:`, error);
-        }
-      });
-    }
+         // Process AI-generated files
+     if (Object.keys(aiFiles).length > 0) {
+       Object.entries(aiFiles).forEach(([path, fileData]) => {
+         try {
+           let code = '';
+           if (typeof fileData === 'string') {
+             code = fileData;
+           } else if (fileData && typeof fileData === 'object' && 'code' in fileData) {
+             code = fileData.code;
+           } else {
+             code = String(fileData || '');
+           }
+           
+           if (code.trim()) {
+             // Clean up the path - remove leading slash if present
+             let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+             
+             // Handle different path formats properly
+             if (cleanPath === 'App.js' || cleanPath === 'src/App.js') {
+               cleanPath = '/src/App.js';
+             } else if (cleanPath.startsWith('components/')) {
+               // Handle components in subdirectory: components/TodoList.js -> /src/TodoList.js
+               const fileName = cleanPath.split('/').pop();
+               cleanPath = `/src/${fileName}`;
+             } else if (cleanPath.includes('/components/')) {
+               // Handle nested components: some/path/components/TodoList.js -> /src/TodoList.js
+               const fileName = cleanPath.split('/').pop();
+               cleanPath = `/src/${fileName}`;
+             } else if (!cleanPath.startsWith('src/') && 
+                       !cleanPath.startsWith('public/') && 
+                       !['package.json', 'tailwind.config.js', 'README.md'].includes(cleanPath)) {
+               // All other JS files go in src/
+               cleanPath = `/src/${cleanPath}`;
+             } else {
+               // Already properly formatted or config file
+               cleanPath = `/${cleanPath}`;
+             }
+             
+             // Fix imports in the code to work with flat src/ structure
+             code = code
+               // Fix relative component imports
+               .replace(/from\s+['"]\.\/components\/([^'"]+)['"]/g, 'from "./$1"')
+               .replace(/from\s+['"]\.\.\/components\/([^'"]+)['"]/g, 'from "./$1"')
+               .replace(/from\s+['"]components\/([^'"]+)['"]/g, 'from "./$1"')
+               // Fix other relative imports
+               .replace(/from\s+['"]\.\/([^'"]+)['"]/g, 'from "./$1"')
+               .replace(/from\s+['"]\.\.\/([^'"]+)['"]/g, 'from "./$1"');
+             
+             // Ensure React import for component files
+             if ((cleanPath.endsWith('.js') || cleanPath.endsWith('.jsx')) && 
+                 (code.includes('function ') || code.includes('const ')) &&
+                 !code.includes('import React')) {
+               code = `import React from 'react';\n${code}`;
+             }
+             
+             files[cleanPath] = code;
+             console.log(`✅ Added file: ${cleanPath} (from original: ${path})`);
+           }
+         } catch (error) {
+           console.error(`Error processing file ${path}:`, error);
+         }
+       });
+     }
     
     // Ensure we have an App.js
     if (!files["/src/App.js"]) {
