@@ -1,54 +1,184 @@
 "use client";
 
 import { Fragment } from "@/generated/prisma"
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import "@/app/code-theme.css";
+import { Button } from "@/components/ui/button";
+import { CopyIcon, CopyCheckIcon } from "lucide-react";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarProvider,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarGroupContent,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub
+} from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from "@/components/ui/collapsible";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { ChevronRight, FileIcon, FolderIcon } from "lucide-react";
+import { Hint } from "@/components/ui/hint";
 
 interface Props {
   fragment: Fragment
 }
 
+// Tree item type for file structure
+type TreeItem = string | [string, ...TreeItem[]];
+
+// File collection type
+type FileCollection = { [path: string]: string };
+
+const getFileExtension = (fileName: string) => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'js':
+    case 'jsx':
+      return 'javascript';
+    case 'ts':
+    case 'tsx':
+      return 'typescript';
+    case 'css':
+      return 'css';
+    case 'html':
+      return 'html';
+    case 'json':
+      return 'json';
+    case 'md':
+      return 'markdown';
+    default:
+      return 'text';
+  }
+};
+
+// Simple syntax highlighting function
+const highlightCode = (code: string, language: string) => {
+  // Basic syntax highlighting for common patterns
+  let highlighted = code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  if (language === 'javascript' || language === 'typescript') {
+    highlighted = highlighted
+      .replace(/\b(import|export|from|const|let|var|function|return|if|else|for|while|class|extends|super|this|new|async|await|try|catch|finally|throw|default|export default)\b/g, '<span class="keyword">$1</span>')
+      .replace(/\b(true|false|null|undefined)\b/g, '<span class="boolean">$1</span>')
+      .replace(/\b(\d+)\b/g, '<span class="number">$1</span>')
+      .replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>')
+      .replace(/(\/\/.*)/g, '<span class="comment">$1</span>')
+      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>');
+  } else if (language === 'css') {
+    highlighted = highlighted
+      .replace(/([.#]?\w+)\s*{/g, '<span class="selector">$1</span> {')
+      .replace(/(\w+):\s*([^;]+);/g, '<span class="property">$1</span>: <span class="value">$2</span>;')
+      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>');
+  } else if (language === 'html') {
+    highlighted = highlighted
+      .replace(/(&lt;\/?)(\w+)/g, '$1<span class="tag">$2</span>')
+      .replace(/(\w+)=/g, '<span class="attribute">$1</span>=');
+  }
+
+  return highlighted;
+};
+
+// Convert flat file structure to tree structure
+const buildFileTree = (files: FileCollection): TreeItem[] => {
+  const tree: { [key: string]: any } = {};
+  
+  Object.keys(files).forEach(filePath => {
+    const parts = filePath.split('/');
+    let current = tree;
+    
+    parts.forEach((part, index) => {
+      if (index === parts.length - 1) {
+        // This is a file
+        current[part] = filePath;
+      } else {
+        // This is a directory
+        if (!current[part]) {
+          current[part] = {};
+        }
+        current = current[part];
+      }
+    });
+  });
+  
+  const convertToTreeItem = (obj: any): TreeItem[] => {
+    return Object.entries(obj).map(([key, value]) => {
+      if (typeof value === 'string') {
+        return key; // File
+      } else {
+        return [key, ...convertToTreeItem(value)]; // Directory
+      }
+    });
+  };
+  
+  return convertToTreeItem(tree);
+};
+
 export const FragmentCode = ({
   fragment
 }: Props) => {
-  const [selectedFile, setSelectedFile] = useState<string>("src/App.js");
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Parse fragment files safely
-  let fragmentFiles: { [path: string]: any } = {};
-  try {
-    if (fragment?.files) {
-      if (typeof fragment.files === 'string') {
-        fragmentFiles = JSON.parse(fragment.files);
-      } else {
-        fragmentFiles = fragment.files as { [path: string]: any };
+  const files: FileCollection = useMemo(() => {
+    let fragmentFiles: { [path: string]: any } = {};
+    try {
+      if (fragment?.files) {
+        if (typeof fragment.files === 'string') {
+          fragmentFiles = JSON.parse(fragment.files);
+        } else {
+          fragmentFiles = fragment.files as { [path: string]: any };
+        }
       }
+    } catch (error) {
+      console.error("Error parsing fragment files:", error);
+      fragmentFiles = {};
     }
-  } catch (error) {
-    console.error("Error parsing fragment files:", error);
-    fragmentFiles = {};
-  }
 
-  // Create complete React app structure with all files
-  const files: { [path: string]: string } = {};
-  
-  // Add essential React project files first
-  files["package.json"] = JSON.stringify({
-    name: "react-app",
-    version: "0.1.0",
-    private: true,
-    dependencies: {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "lucide-react": "^0.469.0",
-      "date-fns": "^4.1.0"
-    },
-    scripts: {
-      start: "react-scripts start",
-      build: "react-scripts build",
-      test: "react-scripts test"
-    }
-  }, null, 2);
+    const completeFiles: FileCollection = {};
+    
+    // Add essential React project files first
+    completeFiles["package.json"] = JSON.stringify({
+      name: "react-app",
+      version: "0.1.0",
+      private: true,
+      dependencies: {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "lucide-react": "^0.469.0",
+        "date-fns": "^4.1.0"
+      },
+      scripts: {
+        start: "react-scripts start",
+        build: "react-scripts build",
+        test: "react-scripts test"
+      }
+    }, null, 2);
 
-  files["public/index.html"] = `<!DOCTYPE html>
+    completeFiles["public/index.html"] = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -61,7 +191,7 @@ export const FragmentCode = ({
   </body>
 </html>`;
 
-  files["src/index.js"] = `import React from 'react';
+    completeFiles["src/index.js"] = `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
@@ -69,9 +199,7 @@ import App from './App';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);`;
 
-  files["src/index.css"] = `/* Tailwind CSS and base styles */
-@import 'https://cdn.tailwindcss.com/3.4.1';
-
+    completeFiles["src/index.css"] = `/* Base styles */
 * {
   margin: 0;
   padding: 0;
@@ -84,7 +212,7 @@ body {
   color: #1f2937;
 }`;
 
-  files["README.md"] = `# React App
+    completeFiles["README.md"] = `# React App
 
 This project was created with AI and uses React 18 with Tailwind CSS.
 
@@ -94,46 +222,46 @@ This project was created with AI and uses React 18 with Tailwind CSS.
 - \`npm run build\` - Builds the app for production
 - \`npm test\` - Launches the test runner`;
 
-  // Process AI-generated files and add/override them
-  Object.entries(fragmentFiles).forEach(([path, fileData]) => {
-    let content = '';
-    if (typeof fileData === 'string') {
-      content = fileData;
-    } else if (fileData && typeof fileData === 'object' && 'code' in fileData) {
-      content = fileData.code;
-    } else {
-      content = String(fileData || '');
-    }
-    
-    if (content.trim()) {
-      // Clean up the path - keep original structure but fix format
-      let cleanPath = path.startsWith('/') ? path.substring(1) : path;
-      
-      // Handle different path formats
-      if (cleanPath === 'App.js' || cleanPath === 'src/App.js') {
-        cleanPath = 'src/App.js';
-      } else if (cleanPath.startsWith('components/')) {
-        // Keep components in their folder: components/TodoList.js
-        cleanPath = `src/${cleanPath}`;
-      } else if (cleanPath.includes('/components/')) {
-        // Handle nested: some/path/components/TodoList.js -> src/components/TodoList.js
-        const fileName = cleanPath.split('/').pop();
-        cleanPath = `src/components/${fileName}`;
-      } else if (!cleanPath.startsWith('src/') && 
-                !cleanPath.startsWith('public/') && 
-                !['package.json', 'tailwind.config.js', 'README.md', '.gitignore'].includes(cleanPath) &&
-                (cleanPath.endsWith('.js') || cleanPath.endsWith('.jsx'))) {
-        // Other JS files go in src/
-        cleanPath = `src/${cleanPath}`;
+    // Process AI-generated files and add/override them
+    Object.entries(fragmentFiles).forEach(([path, fileData]) => {
+      let content = '';
+      if (typeof fileData === 'string') {
+        content = fileData;
+      } else if (fileData && typeof fileData === 'object' && 'code' in fileData) {
+        content = fileData.code;
+      } else {
+        content = String(fileData || '');
       }
       
-      files[cleanPath] = content;
-    }
-  });
+      if (content.trim()) {
+        // Clean up the path - keep original structure but fix format
+        let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+        
+        // Handle different path formats
+        if (cleanPath === 'App.js' || cleanPath === 'src/App.js') {
+          cleanPath = 'src/App.js';
+        } else if (cleanPath.startsWith('components/')) {
+          // Keep components in their folder: components/TodoList.js
+          cleanPath = `src/${cleanPath}`;
+        } else if (cleanPath.includes('/components/')) {
+          // Handle nested: some/path/components/TodoList.js -> src/components/TodoList.js
+          const fileName = cleanPath.split('/').pop();
+          cleanPath = `src/components/${fileName}`;
+        } else if (!cleanPath.startsWith('src/') && 
+                  !cleanPath.startsWith('public/') && 
+                  !['package.json', 'tailwind.config.js', 'README.md', '.gitignore'].includes(cleanPath) &&
+                  (cleanPath.endsWith('.js') || cleanPath.endsWith('.jsx'))) {
+          // Other JS files go in src/
+          cleanPath = `src/${cleanPath}`;
+        }
+        
+        completeFiles[cleanPath] = content;
+      }
+    });
 
-  // Ensure we have a default App.js
-  if (!files["src/App.js"]) {
-    files["src/App.js"] = `import React from 'react';
+    // Ensure we have a default App.js
+    if (!completeFiles["src/App.js"]) {
+      completeFiles["src/App.js"] = `import React from 'react';
 
 function App() {
   return (
@@ -151,71 +279,220 @@ function App() {
 }
 
 export default App;`;
-  }
+    }
 
-  const fileKeys = Object.keys(files).sort((a, b) => {
-    // Sort files with folders first, then files
-    const aIsFolder = a.includes('/');
-    const bIsFolder = b.includes('/');
-    
-    if (aIsFolder && !bIsFolder) return 1;
-    if (!aIsFolder && bIsFolder) return -1;
-    
-    // Put important files at top
-    const importantFiles = ['package.json', 'README.md', 'src/App.js', 'src/index.js', 'src/index.css', 'public/index.html'];
-    const aIndex = importantFiles.indexOf(a);
-    const bIndex = importantFiles.indexOf(b);
-    
-    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-    if (aIndex !== -1) return -1;
-    if (bIndex !== -1) return 1;
-    
-    return a.localeCompare(b);
-  });
-  
-  const currentFile = files[selectedFile] || files[fileKeys[0]] || '';
+    return completeFiles;
+  }, [fragment]);
 
-  const getFileIcon = (fileName: string) => {
-    if (fileName.endsWith('.js') || fileName.endsWith('.jsx')) return '📄';
-    if (fileName.endsWith('.css')) return '🎨';
-    if (fileName.endsWith('.html')) return '🌐';
-    if (fileName.endsWith('.json')) return '⚙️';
-    if (fileName.endsWith('.md')) return '📝';
-    if (fileName.includes('/')) return '📁';
-    return '📄';
+  const treeData = useMemo(() => buildFileTree(files), [files]);
+
+  // Set default selected file
+  useMemo(() => {
+    if (!selectedFile && Object.keys(files).length > 0) {
+      const defaultFiles = ['src/App.js', 'src/index.js', 'package.json'];
+      for (const defaultFile of defaultFiles) {
+        if (files[defaultFile]) {
+          setSelectedFile(defaultFile);
+          break;
+        }
+      }
+    }
+  }, [files, selectedFile]);
+
+  const handleFileSelect = (filePath: string) => {
+    setSelectedFile(filePath);
+  };
+
+  const handleFileCopy = async () => {
+    if (selectedFile) {
+      try {
+        await navigator.clipboard.writeText(selectedFile);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy file path:', err);
+      }
+    }
+  };
+
+  // File Breadcrumb Component
+  const FileBreadcrumb = ({ filePath }: { filePath: string }) => {
+    const pathSegments = filePath.split('/');
+    
+    const renderedSegments = () => {
+      if (pathSegments.length <= 3) {
+        return pathSegments.map((segment, index) => (
+          <BreadcrumbItem key={index}>
+            {index === pathSegments.length - 1 ? (
+              <BreadcrumbPage className="font-medium">
+                {segment}
+              </BreadcrumbPage>
+            ) : (
+              <span className="text-muted-foreground">
+                {segment}
+              </span>
+            )}
+            {index < pathSegments.length - 1 && <BreadcrumbSeparator/>}
+          </BreadcrumbItem>
+        ));
+      } else {
+        const firstSegment = pathSegments[0];
+        const lastSegment = pathSegments[pathSegments.length - 1];
+        return (
+          <>
+            <BreadcrumbItem>
+              <span className="text-muted-foreground">
+                {firstSegment}
+              </span>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator/>
+            <BreadcrumbItem>
+              <span className="text-muted-foreground">...</span>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator/>
+            <BreadcrumbItem>
+              <BreadcrumbPage className="font-medium">
+                {lastSegment}
+              </BreadcrumbPage>
+            </BreadcrumbItem> 
+          </>
+        );
+      }
+    };
+
+    return (
+      <Breadcrumb>
+        <BreadcrumbList>
+          {renderedSegments()}
+        </BreadcrumbList>
+      </Breadcrumb>
+    );
+  };
+
+  // Tree Component
+  const Tree = ({
+    item,
+    onSelect,
+    value,
+    parentPath
+  }: {
+    item: TreeItem;
+    onSelect?: (filePath: string) => void;
+    value?: string | null;
+    parentPath: string;
+  }) => {
+    const [name, ...items] = Array.isArray(item) ? item : [item];
+    const currentPath = parentPath ? `${parentPath}/${name}` : name;
+
+    if (!items.length) {
+      const isSelected = value === currentPath;
+      return (
+        <SidebarMenuButton
+          isActive={isSelected}
+          onClick={() => onSelect?.(currentPath)}
+          className="data-[active=true]:bg-transparent"
+        >
+          <FileIcon/>
+          <span className="truncate">{name}</span>
+        </SidebarMenuButton>
+      );
+    }
+
+    return (
+      <SidebarMenuItem>
+        <Collapsible className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90" defaultOpen>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton>
+              <ChevronRight className="transition-transform"/>
+              <FolderIcon/>
+              <span className="truncate">{name}</span>
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {items.map((subItem, index) => (
+                <Tree
+                  key={index}
+                  item={subItem}
+                  onSelect={onSelect}
+                  value={value}
+                  parentPath={currentPath}
+                />
+              ))}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </Collapsible>
+      </SidebarMenuItem>
+    );
   };
 
   return (
-    <div className="h-full w-full flex">
-      {/* File List */}
-      <div className="w-64 border-r bg-sidebar overflow-y-auto">
-        <div className="p-2">
-          <h3 className="font-semibold text-sm mb-2">Project Files</h3>
-          {fileKeys.map((filePath) => (
-            <div
-              key={filePath}
-              className={`p-2 text-sm cursor-pointer rounded hover:bg-accent ${
-                selectedFile === filePath ? 'bg-accent' : ''
-              } flex items-center gap-2`}
-              onClick={() => setSelectedFile(filePath)}
-            >
-              <span>{getFileIcon(filePath)}</span>
-              <span className="truncate">{filePath}</span>
+    <ResizablePanelGroup direction="horizontal">
+      <ResizablePanel defaultSize={30} minSize={30} className="h-full">
+        <SidebarProvider className="h-full">
+          <Sidebar collapsible="none" className="w-full">
+            <SidebarContent>
+              <SidebarGroup>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {treeData.map((item, index) => (
+                      <Tree
+                        key={index}
+                        item={item}
+                        onSelect={handleFileSelect}
+                        value={selectedFile}
+                        parentPath=""
+                      />
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </SidebarContent>
+          </Sidebar>
+        </SidebarProvider>
+      </ResizablePanel>
+      <ResizableHandle withHandle className="hover:bg-primary transition-colors"/>
+      <ResizablePanel defaultSize={70} minSize={50}>
+        {selectedFile && files[selectedFile] ? (
+          <div className="h-full w-full flex flex-col">
+            <div className="border-b flex bg-sidebar px-4 py-2 justify-between items-center">
+              <FileBreadcrumb filePath={selectedFile} />
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={handleFileCopy}
+                disabled={copied}
+              >
+                {copied ? <CopyCheckIcon className="w-4 h-4"/> : <CopyIcon className="w-4 h-4"/>}
+              </Button>
             </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Code Viewer */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-4">
-          <div className="bg-muted rounded p-4">
-            <pre className="text-sm overflow-auto">
-              <code>{currentFile}</code>
-            </pre>
+            <div className="flex-1 overflow-auto p-2">
+              <div className="bg-background border rounded-lg overflow-hidden">
+                <div className="bg-muted px-4 py-2 border-b">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {getFileExtension(selectedFile)}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <pre className="text-sm overflow-auto bg-transparent border-none rounded-none m-0">
+                    <code 
+                      className={`language-${getFileExtension(selectedFile)}`}
+                      dangerouslySetInnerHTML={{
+                        __html: highlightCode(files[selectedFile], getFileExtension(selectedFile))
+                      }}
+                    />
+                  </pre>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+        ) : (
+          <div className="flex h-full items-center justify-center p-4 text-muted-foreground">
+            Open a file to view its contents
+          </div>
+        )}
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 };

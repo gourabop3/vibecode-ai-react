@@ -1,0 +1,120 @@
+/* Code Syntax Highlighting Theme */
+
+/* Base styles for code blocks */
+pre[class*='language-'],
+code[class*='language-'] {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono',
+    'Droid Sans Mono', 'Source Code Pro', monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 4;
+  hyphens: none;
+  color: #24292e;
+}
+
+/* Light theme colors */
+.keyword {
+  color: #d73a49;
+  font-weight: 600;
+}
+
+.boolean {
+  color: #005cc5;
+}
+
+.number {
+  color: #005cc5;
+}
+
+.string {
+  color: #032f62;
+}
+
+.comment {
+  color: #6a737d;
+  font-style: italic;
+}
+
+.selector {
+  color: #032f62;
+}
+
+.property {
+  color: #005cc5;
+}
+
+.value {
+  color: #032f62;
+}
+
+.tag {
+  color: #22863a;
+}
+
+.attribute {
+  color: #6f42c1;
+}
+
+/* Dark theme colors */
+.dark pre[class*='language-'],
+.dark code[class*='language-'] {
+  color: #e1e4e8;
+}
+
+.dark .keyword {
+  color: #f97583;
+}
+
+.dark .boolean {
+  color: #79b8ff;
+}
+
+.dark .number {
+  color: #79b8ff;
+}
+
+.dark .string {
+  color: #9ecbff;
+}
+
+.dark .comment {
+  color: #6a737d;
+}
+
+.dark .selector {
+  color: #9ecbff;
+}
+
+.dark .property {
+  color: #79b8ff;
+}
+
+.dark .value {
+  color: #9ecbff;
+}
+
+.dark .tag {
+  color: #85e89d;
+}
+
+.dark .attribute {
+  color: #b392f0;
+}
+
+/* Additional utility classes */
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
