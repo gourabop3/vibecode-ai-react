@@ -134,25 +134,7 @@ body {
       "/package.json": JSON.stringify({
         name: "react-app",
         version: "0.1.0",
-        dependencies: {
-          "react": "^18.2.0",
-          "react-dom": "^18.2.0",
-          "lucide-react": "^0.469.0",
-          "date-fns": "^4.1.0",
-          "react-chartjs-2": "^5.3.0",
-          "chart.js": "^4.4.7",
-          "react-router-dom": "^6.8.0",
-          "uuid": "^9.0.0",
-          "axios": "^1.3.0",
-          "firebase": "^9.17.0",
-          "react-hook-form": "^7.43.0",
-          "zod": "^3.20.0",
-          "@hookform/resolvers": "^2.9.0",
-          "framer-motion": "^10.0.0",
-          "react-icons": "^4.7.0",
-          "clsx": "^1.2.0",
-          "tailwind-merge": "^1.12.0"
-        }
+        dependencies: allDependencies
       }, null, 2)
     };
     
@@ -333,8 +315,69 @@ export default ${componentName};`;
          }
        }
      });
-    
-         // Ensure we have an App.js
+
+     // Auto-detect dependencies from import statements
+     const detectedDependencies = new Set<string>();
+     
+     Object.values(files).forEach(code => {
+       if (typeof code === 'string') {
+         // Match import statements for external packages
+         const importMatches = code.match(/import\s+.*?from\s+['"]([^'"]+)['"]/g);
+         if (importMatches) {
+           importMatches.forEach(match => {
+             const packageMatch = match.match(/import\s+.*?from\s+['"]([^'"]+)['"]/);
+             if (packageMatch) {
+               const packageName = packageMatch[1];
+               
+               // Skip relative imports and built-in modules
+               if (!packageName.startsWith('.') && 
+                   !packageName.startsWith('/') && 
+                   !packageName.startsWith('http') &&
+                   !['react', 'react-dom'].includes(packageName)) {
+                 
+                 // Extract the main package name (handle sub-packages)
+                 const mainPackage = packageName.split('/')[0];
+                 
+                 // Skip @types packages and other non-runtime packages
+                 if (!mainPackage.startsWith('@types/') && 
+                     !mainPackage.startsWith('@babel/') &&
+                     !mainPackage.startsWith('@testing-library/')) {
+                   detectedDependencies.add(mainPackage);
+                 }
+               }
+             }
+           });
+         }
+       }
+     });
+
+          console.log("🔍 Auto-detected dependencies:", Array.from(detectedDependencies));
+     
+     // Create a comprehensive dependencies object
+     const allDependencies = {
+       "react": "^18.2.0",
+       "react-dom": "^18.2.0",
+       "lucide-react": "^0.469.0",
+       "date-fns": "^4.1.0",
+       "react-chartjs-2": "^5.3.0",
+       "chart.js": "^4.4.7",
+       "react-router-dom": "^6.8.0",
+       "uuid": "^9.0.0",
+       "axios": "^1.3.0",
+       "firebase": "^9.17.0",
+       "react-hook-form": "^7.43.0",
+       "zod": "^3.20.0",
+       "@hookform/resolvers": "^2.9.0",
+       "framer-motion": "^10.0.0",
+       "react-icons": "^4.7.0",
+       "clsx": "^1.2.0",
+       "tailwind-merge": "^1.12.0",
+       ...Object.fromEntries(
+         Array.from(detectedDependencies).map(dep => [dep, "latest"])
+       )
+     };
+     
+     // Ensure we have an App.js
      if (!files["/src/App.js"]) {
        files["/src/App.js"] = `import React from 'react';
 
@@ -395,25 +438,7 @@ export default App;`;
           files={sandpackFiles}
           theme="light"
           customSetup={{
-            dependencies: {
-              "react": "^18.2.0",
-              "react-dom": "^18.2.0",
-              "lucide-react": "^0.469.0",
-              "date-fns": "^4.1.0",
-              "react-chartjs-2": "^5.3.0",
-              "chart.js": "^4.4.7",
-              "react-router-dom": "^6.8.0",
-              "uuid": "^9.0.0",
-              "axios": "^1.3.0",
-              "firebase": "^9.17.0",
-              "react-hook-form": "^7.43.0",
-              "zod": "^3.20.0",
-              "@hookform/resolvers": "^2.9.0",
-              "framer-motion": "^10.0.0",
-              "react-icons": "^4.7.0",
-              "clsx": "^1.2.0",
-              "tailwind-merge": "^1.12.0"
-            }
+            dependencies: allDependencies
           }}
           options={{
             visibleFiles: ["/src/App.js"],
