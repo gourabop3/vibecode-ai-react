@@ -307,14 +307,10 @@ export default App;`;
                 "chart.js": "^4.4.7"
               }
             }}
-            options={{
-              visibleFiles: ["/src/App.js"],
-              activeFile: "/src/App.js",
-              showConsole: false,
-              showConsoleButton: false,
-              editorHeight: 0,
-              layout: "preview"
-            }}
+                         options={{
+               visibleFiles: ["/src/App.js"],
+               activeFile: "/src/App.js"
+             }}
             style={{ height: "100%", width: "100%" }}
           >
             <SandpackPreview 
