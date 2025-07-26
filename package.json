@@ -14,6 +14,7 @@
     "@clerk/themes": "^2.2.55",
     "@codesandbox/sandpack-react": "^2.20.0",
     "@e2b/code-interpreter": "^1.5.1",
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.1.1",
     "@inngest/agent-kit": "^0.8.3",
     "@prisma/client": "^6.11.1",
