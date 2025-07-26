@@ -80,10 +80,10 @@ root.render(<App />);`,
                            "/public/index.html": `<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>React App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       * {
         margin: 0;
@@ -108,11 +108,7 @@ root.render(<App />);`,
   </body>
 </html>`,
       
-             "/src/index.css": `@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Reset and base styles */
+             "/src/index.css": `/* Base styles */
 * {
   margin: 0;
   padding: 0;
@@ -143,28 +139,10 @@ body {
           "react-dom": "^18.2.0",
           "lucide-react": "^0.469.0",
           "date-fns": "^4.1.0",
-          "tailwindcss": "^3.4.0"
+          "react-chartjs-2": "^5.3.0",
+          "chart.js": "^4.4.7"
         }
-      }, null, 2),
-      
-      "/tailwind.config.js": `/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "./public/index.html"
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}`,
-      
-      "/postcss.config.js": `module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}`
+      }, null, 2)
     };
     
          // Process AI-generated files
@@ -412,15 +390,13 @@ export default App;`;
               "lucide-react": "^0.469.0",
               "date-fns": "^4.1.0",
               "react-chartjs-2": "^5.3.0",
-              "chart.js": "^4.4.7",
-              "tailwindcss": "^3.4.0",
-              "autoprefixer": "^10.4.0",
-              "postcss": "^8.4.0"
+              "chart.js": "^4.4.7"
             }
           }}
           options={{
             visibleFiles: ["/src/App.js"],
-            activeFile: "/src/App.js"
+            activeFile: "/src/App.js",
+            externalResources: ['https://cdn.tailwindcss.com']
           }}
           style={{ height: "100%", width: "100%" }}
         >
