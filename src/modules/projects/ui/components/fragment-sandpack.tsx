@@ -451,7 +451,9 @@ export default App;`;
               "clsx": "^1.2.0",
               "tailwind-merge": "^1.12.0",
               ...Object.fromEntries(
-                Array.from(detectedDependencies || []).map(dep => [dep, "latest"])
+                Array.from(sandpackFiles["/package.json"] ? JSON.parse(sandpackFiles["/package.json"]).dependencies ? Object.keys(JSON.parse(sandpackFiles["/package.json"]).dependencies) : [] : []).filter(dep => ![
+                  "react", "react-dom", "lucide-react", "date-fns", "react-chartjs-2", "chart.js", "react-router-dom", "uuid", "axios", "firebase", "react-hook-form", "zod", "@hookform/resolvers", "framer-motion", "react-icons", "clsx", "tailwind-merge"
+                ].includes(dep)).map(dep => [dep, "latest"])
               )
             }
           }}
