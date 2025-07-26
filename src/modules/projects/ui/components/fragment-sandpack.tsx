@@ -140,7 +140,18 @@ body {
           "lucide-react": "^0.469.0",
           "date-fns": "^4.1.0",
           "react-chartjs-2": "^5.3.0",
-          "chart.js": "^4.4.7"
+          "chart.js": "^4.4.7",
+          "react-router-dom": "^6.8.0",
+          "uuid": "^9.0.0",
+          "axios": "^1.3.0",
+          "firebase": "^9.17.0",
+          "react-hook-form": "^7.43.0",
+          "zod": "^3.20.0",
+          "@hookform/resolvers": "^2.9.0",
+          "framer-motion": "^10.0.0",
+          "react-icons": "^4.7.0",
+          "clsx": "^1.2.0",
+          "tailwind-merge": "^1.12.0"
         }
       }, null, 2)
     };
@@ -390,7 +401,18 @@ export default App;`;
               "lucide-react": "^0.469.0",
               "date-fns": "^4.1.0",
               "react-chartjs-2": "^5.3.0",
-              "chart.js": "^4.4.7"
+              "chart.js": "^4.4.7",
+              "react-router-dom": "^6.8.0",
+              "uuid": "^9.0.0",
+              "axios": "^1.3.0",
+              "firebase": "^9.17.0",
+              "react-hook-form": "^7.43.0",
+              "zod": "^3.20.0",
+              "@hookform/resolvers": "^2.9.0",
+              "framer-motion": "^10.0.0",
+              "react-icons": "^4.7.0",
+              "clsx": "^1.2.0",
+              "tailwind-merge": "^1.12.0"
             }
           }}
           options={{
