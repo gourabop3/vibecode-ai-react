@@ -35,7 +35,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ChevronRight, FileIcon, FolderIcon } from "lucide-react";
-import { Hint } from "@/components/ui/hint";
 
 interface Props {
   fragment: Fragment
