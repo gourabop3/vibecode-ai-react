@@ -291,40 +291,46 @@ export default App;`;
     <div className="flex flex-col h-full w-full overflow-hidden">
       <SandpackToolbar />
       
-      <div className="flex-1 min-h-0 overflow-hidden">
-                  <SandpackProvider
-            key={sandpackKey}
-            template="react"
-            files={sandpackFiles}
-            theme="light"
-            customSetup={{
-              dependencies: {
-                "react": "^18.2.0",
-                "react-dom": "^18.2.0",
-                "lucide-react": "^0.469.0",
-                "date-fns": "^4.1.0",
-                "react-chartjs-2": "^5.3.0",
-                "chart.js": "^4.4.7"
-              }
+      <div className="flex-1 min-h-0 overflow-hidden relative">
+        <SandpackProvider
+          key={sandpackKey}
+          template="react"
+          files={sandpackFiles}
+          theme="light"
+          customSetup={{
+            dependencies: {
+              "react": "^18.2.0",
+              "react-dom": "^18.2.0",
+              "lucide-react": "^0.469.0",
+              "date-fns": "^4.1.0",
+              "react-chartjs-2": "^5.3.0",
+              "chart.js": "^4.4.7"
+            }
+          }}
+          options={{
+            visibleFiles: ["/src/App.js"],
+            activeFile: "/src/App.js"
+          }}
+          style={{ height: "100%", width: "100%" }}
+        >
+          <SandpackPreview 
+            showOpenInCodeSandbox={false}
+            showRefreshButton={true}
+            showNavigator={true}
+            className="sandpack-preview"
+            style={{ 
+              height: "100%", 
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0
             }}
-                         options={{
-               visibleFiles: ["/src/App.js"],
-               activeFile: "/src/App.js"
-             }}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <SandpackPreview 
-              showOpenInCodeSandbox={false}
-              showRefreshButton={true}
-              showNavigator={true}
-              style={{ 
-                height: "100%", 
-                width: "100%",
-                display: "flex",
-                flexDirection: "column"
-              }}
-            />
-          </SandpackProvider>
+          />
+        </SandpackProvider>
       </div>
     </div>
   );

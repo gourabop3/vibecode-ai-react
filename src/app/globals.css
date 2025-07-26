@@ -165,6 +165,34 @@ body,
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Ensure proper layout constraints for resizable panels */
+  .resizable-panel-group {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .resizable-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  
+  /* Ensure Sandpack preview doesn't overflow */
+  .sandpack-preview {
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* Ensure tabs content doesn't overflow */
+  .tabs-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
 }
 
 @layer base {

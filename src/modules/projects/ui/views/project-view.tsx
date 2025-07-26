@@ -41,12 +41,13 @@ export const ProjectView = ({
   const [tabState, setTabState] = useState<"preview"|"code">("preview");
 
   return (
-    <div className="h-full">
-      <ResizablePanelGroup direction="horizontal" className="h-full">
+    <div className="h-full w-full overflow-hidden">
+      <ResizablePanelGroup direction="horizontal" className="h-full w-full resizable-panel-group">
         <ResizablePanel
           defaultSize={35}
           minSize={20}
-          className="flex flex-col min-h-0"
+          maxSize={50}
+          className="flex flex-col min-h-0 overflow-hidden resizable-panel"
         >
           <Suspense fallback={<Loader/>}>
             <Header projectId={projectId}/>
@@ -63,14 +64,16 @@ export const ProjectView = ({
         <ResizablePanel
           defaultSize={65}
           minSize={50}
+          maxSize={80}
+          className="flex flex-col min-h-0 overflow-hidden resizable-panel"
         >
           <Tabs
-            className="h-full gap-0"
+            className="h-full w-full flex flex-col"
             defaultValue="preview"
             value={tabState}
             onValueChange={(value)=>setTabState(value as "preview"|"code")}
           >
-            <div className="w-full flex items-center p-2 border-b gap-x-2">
+            <div className="w-full flex items-center p-2 border-b gap-x-2 flex-shrink-0">
               <TabsList className="h-8 p-0 border rounded-md">
                 <TabsTrigger value="preview" className="rounded-md">
                   <EyeIcon/>
@@ -98,7 +101,7 @@ export const ProjectView = ({
                 <UserControl/>
               </div>
             </div>
-            <TabsContent value="preview" className="h-full flex-1">
+            <TabsContent value="preview" className="flex-1 min-h-0 overflow-hidden tabs-content">
               {
                 !!activeFragment ? (
                   <FragmentSandpack
@@ -111,7 +114,7 @@ export const ProjectView = ({
                 )
               }
             </TabsContent>
-            <TabsContent value="code" className="min-h-0">
+            <TabsContent value="code" className="flex-1 min-h-0 overflow-hidden tabs-content">
               {
                 !!activeFragment && (
                   <FragmentCode
