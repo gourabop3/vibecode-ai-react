@@ -68,36 +68,14 @@ const getFileExtension = (fileName: string) => {
   }
 };
 
-// Simple syntax highlighting function
-const highlightCode = (code: string, language: string) => {
-  // Basic syntax highlighting for common patterns
-  let highlighted = code
+// Simple code escaping function (no HTML formatting)
+const escapeCode = (code: string) => {
+  return code
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-
-  if (language === 'javascript' || language === 'typescript') {
-    highlighted = highlighted
-      .replace(/\b(import|export|from|const|let|var|function|return|if|else|for|while|class|extends|super|this|new|async|await|try|catch|finally|throw|default|export default)\b/g, '<span class="keyword">$1</span>')
-      .replace(/\b(true|false|null|undefined)\b/g, '<span class="boolean">$1</span>')
-      .replace(/\b(\d+)\b/g, '<span class="number">$1</span>')
-      .replace(/(['"`])(.*?)\1/g, '<span class="string">$1$2$1</span>')
-      .replace(/(\/\/.*)/g, '<span class="comment">$1</span>')
-      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>');
-  } else if (language === 'css') {
-    highlighted = highlighted
-      .replace(/([.#]?\w+)\s*{/g, '<span class="selector">$1</span> {')
-      .replace(/(\w+):\s*([^;]+);/g, '<span class="property">$1</span>: <span class="value">$2</span>;')
-      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>');
-  } else if (language === 'html') {
-    highlighted = highlighted
-      .replace(/(&lt;\/?)(\w+)/g, '$1<span class="tag">$2</span>')
-      .replace(/(\w+)=/g, '<span class="attribute">$1</span>=');
-  }
-
-  return highlighted;
 };
 
 // Convert flat file structure to tree structure
@@ -473,16 +451,13 @@ export default App;`;
                     {getFileExtension(selectedFile)}
                   </span>
                 </div>
-                <div className="p-4">
-                  <pre className="text-sm overflow-auto bg-transparent border-none rounded-none m-0">
-                    <code 
-                      className={`language-${getFileExtension(selectedFile)}`}
-                      dangerouslySetInnerHTML={{
-                        __html: highlightCode(files[selectedFile], getFileExtension(selectedFile))
-                      }}
-                    />
-                  </pre>
-                </div>
+                                 <div className="p-4">
+                   <pre className="text-sm overflow-auto bg-transparent border-none rounded-none m-0">
+                     <code className={`language-${getFileExtension(selectedFile)}`}>
+                       {escapeCode(files[selectedFile])}
+                     </code>
+                   </pre>
+                 </div>
               </div>
             </div>
           </div>
