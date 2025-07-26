@@ -155,29 +155,13 @@ export const FragmentSandpack = ({
       // Use AI-generated app content
       appContent = String(appFile).trim();
       
-      // Fix common package issues for Sandpack compatibility
+      // Fix relative component imports to work in Sandpack (all components in /src/)
       appContent = appContent
-        // Replace uuid imports with a simple alternative
-        .replace(/import\s+\{\s*v4\s+as\s+uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
-        .replace(/import\s+\{\s*uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
-        .replace(/import\s+uuid\s+from\s+['"`]uuid['"`];?/g, '')
-        // Replace uuid function calls with Math.random alternative
-        .replace(/uuidv4\(\)/g, 'Math.random().toString(36).substr(2, 9)')
-        .replace(/uuid\(\)/g, 'Math.random().toString(36).substr(2, 9)')
-        // Replace clsx imports with simple alternative
-        .replace(/import\s+clsx\s+from\s+['"`]clsx['"`];?/g, '')
-        .replace(/import\s+\{\s*clsx\s*\}\s+from\s+['"`]clsx['"`];?/g, '')
-        // Replace clsx usage with simple className logic
-        .replace(/clsx\(/g, '(')
-        // Replace date-fns imports with native Date
-        .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
-        .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
-        // Fix relative component imports to work in Sandpack (all components in /src/)
         .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./$1"')
         .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./$1"')
         .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "./$1"')
         .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "./$1"')
-        // Remove empty lines left by removed imports
+        // Remove empty lines left by modifications
         .replace(/^\s*$/gm, '')
         .replace(/\n\n+/g, '\n\n');
       
@@ -212,29 +196,13 @@ export const FragmentSandpack = ({
         const [, componentContent] = reactFiles[0];
         appContent = String(componentContent).trim();
         
-        // Fix common package issues for Sandpack compatibility
+        // Fix relative component imports to work in Sandpack (all components in /src/)
         appContent = appContent
-          // Replace uuid imports with a simple alternative
-          .replace(/import\s+\{\s*v4\s+as\s+uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
-          .replace(/import\s+\{\s*uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
-          .replace(/import\s+uuid\s+from\s+['"`]uuid['"`];?/g, '')
-          // Replace uuid function calls with Math.random alternative
-          .replace(/uuidv4\(\)/g, 'Math.random().toString(36).substr(2, 9)')
-          .replace(/uuid\(\)/g, 'Math.random().toString(36).substr(2, 9)')
-          // Replace clsx imports with simple alternative
-          .replace(/import\s+clsx\s+from\s+['"`]clsx['"`];?/g, '')
-          .replace(/import\s+\{\s*clsx\s*\}\s+from\s+['"`]clsx['"`];?/g, '')
-          // Replace clsx usage with simple className logic
-          .replace(/clsx\(/g, '(')
-          // Replace date-fns imports with native Date
-          .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
-          .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
-          // Fix relative component imports to work in Sandpack (all components in /src/)
           .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./$1"')
           .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./$1"')
           .replace(/from\s+['"`]\.\.\/components\/(\w+)['"`]/g, 'from "./$1"')
           .replace(/from\s+['"`]\.\.\/(\w+)['"`]/g, 'from "./$1"')
-          // Remove empty lines left by removed imports
+          // Remove empty lines left by modifications
           .replace(/^\s*$/gm, '')
           .replace(/\n\n+/g, '\n\n');
         
@@ -310,24 +278,9 @@ export default App;`;
         return;
       }
       
-      // Fix package compatibility issues for all JavaScript/TypeScript files
+      // Fix import paths for Sandpack compatibility
       if (filePath.endsWith('.js') || filePath.endsWith('.jsx') || filePath.endsWith('.ts') || filePath.endsWith('.tsx')) {
         fileContent = fileContent
-          // Replace uuid imports with a simple alternative
-          .replace(/import\s+\{\s*v4\s+as\s+uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
-          .replace(/import\s+\{\s*uuidv4\s*\}\s+from\s+['"`]uuid['"`];?/g, '')
-          .replace(/import\s+uuid\s+from\s+['"`]uuid['"`];?/g, '')
-          // Replace uuid function calls with Math.random alternative
-          .replace(/uuidv4\(\)/g, 'Math.random().toString(36).substr(2, 9)')
-          .replace(/uuid\(\)/g, 'Math.random().toString(36).substr(2, 9)')
-          // Replace clsx imports with simple alternative
-          .replace(/import\s+clsx\s+from\s+['"`]clsx['"`];?/g, '')
-          .replace(/import\s+\{\s*clsx\s*\}\s+from\s+['"`]clsx['"`];?/g, '')
-          // Replace clsx usage with simple className logic
-          .replace(/clsx\(/g, '(')
-          // Replace date-fns imports with native Date
-          .replace(/import\s+\{[^}]*\}\s+from\s+['"`]date-fns['"`];?/g, '')
-          .replace(/format\([^,]+,\s*['"`][^'"`]*['"`]\)/g, 'new Date().toLocaleDateString()')
           // Fix relative component imports to work in Sandpack (all components in /src/)
           .replace(/from\s+['"`]\.\/components\/(\w+)['"`]/g, 'from "./$1"')
           .replace(/from\s+['"`]\.\/(\w+)['"`]/g, 'from "./$1"')
@@ -1111,13 +1064,73 @@ body {
                 key={sandpackKey}
                 template="react"
                 files={allFiles}
-                                 theme="light"
-                 options={{
-                   visibleFiles: ["/src/App.js"],
-                   activeFile: "/src/App.js"
-                 }}
-                 style={{ height: "100%" }}
-               >
+                theme="light"
+                customSetup={{
+                  dependencies: {
+                    // Core React packages
+                    "react": "^18.2.0",
+                    "react-dom": "^18.2.0",
+                    "react-scripts": "5.0.1",
+                    
+                    // UI and Styling
+                    "tailwindcss": "^3.4.1",
+                    "postcss": "^8",
+                    "autoprefixer": "^10.0.0",
+                    "tailwind-merge": "^2.4.0",
+                    "tailwindcss-animate": "^1.0.7",
+                    "clsx": "^2.1.1",
+                    "class-variance-authority": "^0.7.1",
+                    
+                    // Icons and UI Components  
+                    "lucide-react": "^0.469.0",
+                    "@radix-ui/react-dialog": "^1.1.14",
+                    "@radix-ui/react-dropdown-menu": "^2.1.15",
+                    "@radix-ui/react-tabs": "^1.1.12",
+                    "@radix-ui/react-tooltip": "^1.2.7",
+                    "@radix-ui/react-accordion": "^1.2.11",
+                    "@radix-ui/react-checkbox": "^1.3.2",
+                    "@radix-ui/react-select": "^2.2.5",
+                    
+                    // Utilities
+                    "uuid": "^9.0.1",
+                    "date-fns": "^4.1.0",
+                    "react-hook-form": "^7.58.1",
+                    "zod": "^3.25.67",
+                    
+                    // Routing and Navigation
+                    "react-router-dom": "^6.26.1",
+                    
+                    // Charts and Data Visualization
+                    "react-chartjs-2": "^5.3.0",
+                    "chart.js": "^4.4.7",
+                    "recharts": "^2.12.7",
+                    
+                    // HTTP and State Management
+                    "axios": "^1.7.9",
+                    "@tanstack/react-query": "^5.81.4",
+                    
+                    // Animation and Motion
+                    "framer-motion": "^11.11.17",
+                    
+                    // Forms and Input
+                    "react-textarea-autosize": "^8.5.9",
+                    
+                    // Firebase (optional)
+                    "firebase": "^11.1.0",
+                    
+                    // Google AI (optional)
+                    "@google/generative-ai": "^0.21.0"
+                  }
+                }}
+                options={{
+                  visibleFiles: ["/src/App.js"],
+                  activeFile: "/src/App.js",
+                  externalResources: [
+                    "https://cdn.tailwindcss.com"
+                  ]
+                }}
+                style={{ height: "100%" }}
+              >
                  <SandpackPreview 
                    showOpenInCodeSandbox={false}
                    showRefreshButton={false}

@@ -83,20 +83,26 @@ export const codeAgentFunction = inngest.createFunction(
         
         const codeAgent = createAgent<AgentState>({
             name: "code-agent",
-            description : "An expert coding agent",
+            description : "An expert React development agent that creates production-ready applications",
             system: PROMPT,
             model: gemini({
                 model: "gemini-2.5-flash",
+                generationConfig: {
+                    temperature: 0.7,
+                    topP: 0.95,
+                    topK: 40,
+                    maxOutputTokens: 8192,
+                }
             }),
             tools : [
                 createTool({
                     name : "writeFiles",
-                    description: "Create or update React files for the application. Use this to save all the React component files.",
+                    description: "Create or update React files for the application. Use this to save all the React component files with modern packages and features.",
                     parameters: z.object({
                         files: z.array(z.object({
                             path : z.string().describe("File path relative to project root, e.g., 'src/App.js' or 'src/components/Button.js'"),
-                            content : z.string().describe("Complete file content as a string")
-                        })).describe("Array of files to create or update"),
+                            content : z.string().describe("Complete file content as a string with modern React features and packages")
+                        })).describe("Array of files to create or update with rich functionality"),
                     }),
                     handler: async(
                         { files },
