@@ -1,7 +1,6 @@
 import * as z from "zod";
 
 import { prisma } from "@/lib/db";
-import { inngest } from "@/inngest/client";
 import {protectedProcedure, createTRPCRouter } from "@/trpc/init";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
@@ -62,6 +61,7 @@ export const projectRouter = createTRPCRouter({
             }  
         }
 
+        // Create project with initial user message
         const project = await prisma.project.create({
             data : {
                 userId : ctx.auth.userId ?? ctx.userId,
@@ -76,13 +76,68 @@ export const projectRouter = createTRPCRouter({
             }
         })
 
-        await inngest.send({
-            name : "code-agent/run",
-            data : {
-                value: input.value,
-                projectId: project.id
+        // Generate AI response immediately using direct API
+        try {
+            // Call AI code generation API directly
+            const aiResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/gen-ai-code`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: input.value }),
+            });
+
+            if (!aiResponse.ok) {
+                throw new Error('Failed to generate code');
             }
-        })
+
+            const aiResult = await aiResponse.json();
+            
+            // Also get a chat response for the user
+            const chatResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/ai-chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: `I'm building: ${aiResult.projectTitle}. ${aiResult.explanation}` }),
+            });
+
+            let assistantMessage = "I've created your React app!";
+            if (chatResponse.ok) {
+                const chatResult = await chatResponse.json();
+                assistantMessage = chatResult.result || assistantMessage;
+            }
+
+            // Create assistant message with fragment
+            await prisma.message.create({
+                data: {
+                    projectId: project.id,
+                    content: assistantMessage,
+                    role: "ASSISTANT",
+                    type: "RESULT",
+                    fragment: {
+                        create: {
+                            title: aiResult.projectTitle || "React App",
+                            sandboxUrl: "sandpack://preview",
+                            files: aiResult.files || {},
+                        }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('Direct AI generation error in project creation:', error);
+            
+            // Create error message
+            await prisma.message.create({
+                data: {
+                    projectId: project.id,
+                    content: "Sorry, I encountered an error while generating your app. Please try again.",
+                    role: "ASSISTANT",
+                    type: "ERROR"
+                }
+            });
+        }
 
         return project;
     })
