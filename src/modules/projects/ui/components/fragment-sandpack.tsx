@@ -134,7 +134,25 @@ body {
       "/package.json": JSON.stringify({
         name: "react-app",
         version: "0.1.0",
-        dependencies: allDependencies
+        dependencies: {
+          "react": "^18.2.0",
+          "react-dom": "^18.2.0",
+          "lucide-react": "^0.469.0",
+          "date-fns": "^4.1.0",
+          "react-chartjs-2": "^5.3.0",
+          "chart.js": "^4.4.7",
+          "react-router-dom": "^6.8.0",
+          "uuid": "^9.0.0",
+          "axios": "^1.3.0",
+          "firebase": "^9.17.0",
+          "react-hook-form": "^7.43.0",
+          "zod": "^3.20.0",
+          "@hookform/resolvers": "^2.9.0",
+          "framer-motion": "^10.0.0",
+          "react-icons": "^4.7.0",
+          "clsx": "^1.2.0",
+          "tailwind-merge": "^1.12.0"
+        }
       }, null, 2)
     };
     
@@ -353,30 +371,6 @@ export default ${componentName};`;
 
           console.log("🔍 Auto-detected dependencies:", Array.from(detectedDependencies));
      
-     // Create a comprehensive dependencies object
-     const allDependencies = {
-       "react": "^18.2.0",
-       "react-dom": "^18.2.0",
-       "lucide-react": "^0.469.0",
-       "date-fns": "^4.1.0",
-       "react-chartjs-2": "^5.3.0",
-       "chart.js": "^4.4.7",
-       "react-router-dom": "^6.8.0",
-       "uuid": "^9.0.0",
-       "axios": "^1.3.0",
-       "firebase": "^9.17.0",
-       "react-hook-form": "^7.43.0",
-       "zod": "^3.20.0",
-       "@hookform/resolvers": "^2.9.0",
-       "framer-motion": "^10.0.0",
-       "react-icons": "^4.7.0",
-       "clsx": "^1.2.0",
-       "tailwind-merge": "^1.12.0",
-       ...Object.fromEntries(
-         Array.from(detectedDependencies).map(dep => [dep, "latest"])
-       )
-     };
-     
      // Ensure we have an App.js
      if (!files["/src/App.js"]) {
        files["/src/App.js"] = `import React from 'react';
@@ -438,7 +432,28 @@ export default App;`;
           files={sandpackFiles}
           theme="light"
           customSetup={{
-            dependencies: allDependencies
+            dependencies: {
+              "react": "^18.2.0",
+              "react-dom": "^18.2.0",
+              "lucide-react": "^0.469.0",
+              "date-fns": "^4.1.0",
+              "react-chartjs-2": "^5.3.0",
+              "chart.js": "^4.4.7",
+              "react-router-dom": "^6.8.0",
+              "uuid": "^9.0.0",
+              "axios": "^1.3.0",
+              "firebase": "^9.17.0",
+              "react-hook-form": "^7.43.0",
+              "zod": "^3.20.0",
+              "@hookform/resolvers": "^2.9.0",
+              "framer-motion": "^10.0.0",
+              "react-icons": "^4.7.0",
+              "clsx": "^1.2.0",
+              "tailwind-merge": "^1.12.0",
+              ...Object.fromEntries(
+                Array.from(detectedDependencies || []).map(dep => [dep, "latest"])
+              )
+            }
           }}
           options={{
             visibleFiles: ["/src/App.js"],
