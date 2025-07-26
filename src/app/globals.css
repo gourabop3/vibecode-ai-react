@@ -177,21 +177,21 @@ body,
     display: flex;
     flex-direction: column;
     min-height: 0;
-    overflow: hidden;
+    overflow: visible;
   }
   
   /* Ensure Sandpack preview doesn't overflow */
   .sandpack-preview {
     height: 100% !important;
     width: 100% !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
   
   /* Ensure tabs content doesn't overflow */
   .tabs-content {
     flex: 1;
     min-height: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 }
 

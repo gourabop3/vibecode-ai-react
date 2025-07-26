@@ -82,6 +82,7 @@ root.render(<App />);`,
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
     <title>React App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -115,10 +116,7 @@ root.render(<App />);`,
   </body>
 </html>`,
       
-             "/src/index.css": `/* Import Tailwind CSS */
-@import 'https://cdn.tailwindcss.com/3.4.1';
-
-/* Reset and base styles */
+             "/src/index.css": `/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -136,6 +134,9 @@ body {
 
 #root {
   min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Ensure Tailwind classes work */
@@ -143,9 +144,11 @@ body {
 .bg-gray-50 { background-color: #f9fafb; }
 .bg-gray-100 { background-color: #f3f4f6; }
 .bg-blue-500 { background-color: #3b82f6; }
+.bg-blue-600 { background-color: #2563eb; }
 .text-white { color: #ffffff; }
 .text-gray-900 { color: #111827; }
 .text-gray-600 { color: #4b5563; }
+.text-gray-700 { color: #374151; }
 .flex { display: flex; }
 .items-center { align-items: center; }
 .justify-center { justify-content: center; }
@@ -153,8 +156,11 @@ body {
 .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
 .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
 .font-bold { font-weight: 700; }
+.font-medium { font-weight: 500; }
 .mb-4 { margin-bottom: 1rem; }
+.mb-8 { margin-bottom: 2rem; }
 .p-4 { padding: 1rem; }
+.p-8 { padding: 2rem; }
 .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
 .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
 .rounded-lg { border-radius: 0.5rem; }
@@ -163,7 +169,10 @@ body {
 .cursor-pointer { cursor: pointer; }
 .hover\\:bg-blue-700:hover { background-color: #1d4ed8; }
 .hover\\:bg-gray-50:hover { background-color: #f9fafb; }
-.transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }`,
+.transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+.max-w-4xl { max-width: 56rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.gap-4 { gap: 1rem; }`,
       
       "/package.json": JSON.stringify({
         name: "react-app",
@@ -285,13 +294,17 @@ export default App;`;
     );
   }
 
+  console.log("🔍 Rendering FragmentSandpack with fragment:", fragment.id);
+  console.log("🔍 Sandpack files count:", Object.keys(sandpackFiles).length);
+  console.log("🔍 Sandpack files:", Object.keys(sandpackFiles));
+
   const sandpackKey = `sandpack-${fragment.id}-${Object.keys(sandpackFiles).length}`;
   
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
       <SandpackToolbar />
       
-      <div className="flex-1 min-h-0 overflow-hidden relative">
+      <div className="flex-1 min-h-0 overflow-visible relative">
         <SandpackProvider
           key={sandpackKey}
           template="react"
@@ -323,11 +336,7 @@ export default App;`;
               width: "100%",
               display: "flex",
               flexDirection: "column",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0
+              position: "relative"
             }}
           />
         </SandpackProvider>
