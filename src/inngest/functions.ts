@@ -87,12 +87,6 @@ export const codeAgentFunction = inngest.createFunction(
             system: PROMPT,
             model: gemini({
                 model: "gemini-2.5-flash",
-                generationConfig: {
-                    temperature: 0.7,
-                    topP: 0.95,
-                    topK: 40,
-                    maxOutputTokens: 8192,
-                }
             }),
             tools : [
                 createTool({
