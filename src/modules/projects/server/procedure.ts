@@ -74,7 +74,7 @@ export const projectRouter = createTRPCRouter({
                     }]
                 }
             }
-        })
+        });
 
         // Generate AI response in background (don't await - fire and forget)
         (async () => {
