@@ -1,4 +1,4 @@
-# 🚀 Backend Enhancement Features (No UI Changes)
+### 🚀 Backend Enhancement Features (No UI Changes)
 ##
 ## Overview
 Your project has been enhanced with backend improvements to match Bolt-new's app generation capabilities while keeping your existing UI unchanged and maintaining the Inngest architecture.
