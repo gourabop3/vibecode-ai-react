@@ -55,7 +55,7 @@ function ensureDependencies(response: any) {
     // Find all import statements
     const importMatches = code.match(/import\s+.*?from\s+['"]([^'"]+)['"]/g);
     if (importMatches) {
-      importMatches.forEach(match => {
+      importMatches.forEach((match: string) => {
         const packageMatch = match.match(/from\s+['"]([^'"]+)['"]/);
         if (packageMatch) {
           const packageName = packageMatch[1];
@@ -81,7 +81,7 @@ function ensureDependencies(response: any) {
   });
   
   // Ensure package.json exists and has all detected dependencies
-  const baseDependencies = {
+  const baseDependencies: { [key: string]: string } = {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   };
