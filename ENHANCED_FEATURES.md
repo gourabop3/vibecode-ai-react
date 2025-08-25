@@ -1,7 +1,7 @@
 ### 🚀 Backend Enhancement Features (No UI Changes)
 ##
 ## Overview
-Your project has been enhanced with backend improvements to match Bolt-new's app generation capabilities while keeping your existing UI unchanged and maintaining the Inngest architecture.
+Your project has been enhanced with backend improvements to match Bolt-new's app generation capabilities while keeping your existing UI unchanged and using direct AI API calls for faster code generation.
 
 ## ✅ Major Backend Improvements Implemented
 
@@ -131,7 +131,7 @@ Updated file processing to stop removing/replacing:
 
 ### Maintained Your Advantages:
 - **Same UI** - No interface changes
-- **Inngest architecture** - Background processing preserved
+- **Direct AI processing** - Fast, synchronous code generation like Libra
 - **Database persistence** - All existing functionality
 - **Type safety** - TypeScript development maintained
 

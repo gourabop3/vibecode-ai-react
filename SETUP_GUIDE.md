@@ -27,15 +27,16 @@
    ```bash
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_ACTUAL_KEY_HERE
    CLERK_SECRET_KEY=sk_test_YOUR_ACTUAL_KEY_HERE
+   GEMINI_API_KEY=your_gemini_api_key_here
    ```
 
 ### 2. Database (Already configured)
 - Using SQLite for local development (no setup needed)
 
-### 3. Inngest (Required for AI)
-- **CRITICAL**: Required for AI app generation to work
-- The AI agent won't run without proper Inngest setup
-- Set the environment variables in `.env.local` as shown above
+### 3. AI Configuration
+- **SIMPLIFIED**: Uses direct API calls for faster code generation like Libra
+- No background processing setup required - AI works immediately
+- Just ensure you have your Gemini API key set in `.env.local`
 
 ## 🏃‍♂️ Running the Application
 
@@ -50,30 +51,21 @@
    npx prisma db push
    ```
 
-3. **Start the Inngest dev server** (in a separate terminal):
-   ```bash
-   npx inngest-cli@latest dev
-   ```
-   This should start on `http://localhost:8288`
-
-4. **Start the development server**:
+3. **Start the development server**:
    ```bash
    npm run dev
    ```
 
-5. **Open your browser**:
+4. **Open your browser**:
    Navigate to `http://localhost:3000`
 
 ## 🧪 Testing AI Generation
 
 1. Create a new project
 2. Send a message like "create a todo app"
-3. Watch the Inngest dashboard at `http://localhost:8288` for function runs
+3. The AI will generate code directly and quickly
 4. View the generated app in the preview tab
 5. Check the code tab to see all generated files
-
-4. **Open your browser**:
-   - Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🧪 Testing the React AI Generator
 
@@ -81,7 +73,7 @@
 2. **Create a new project**
 3. **Test the AI generation**:
    - Try prompts like: "Create a todo app with React"
-   - The AI should generate React components
+   - The AI should generate React components instantly
    - View the generated code in the **Code** tab
    - See the live preview in the **Preview** tab (powered by Sandpack)
 
@@ -90,8 +82,8 @@
 ### Issue: "Publishable key not valid"
 - **Solution**: Make sure you've replaced the placeholder in `.env.local` with your actual Clerk keys
 
-### Issue: Preview shows "Hello World" instead of AI-generated app
-- **Solution**: This is the current issue we're fixing. The debug logs in the browser console will help identify why the AI-generated content isn't being used.
+### Issue: AI generation not working
+- **Solution**: Ensure your Gemini API key is set correctly in `.env.local`
 
 ### Issue: Database errors
 - **Solution**: Run `npx prisma db push` to set up the SQLite database
@@ -109,3 +101,4 @@ If you encounter issues:
 1. Check the browser console for error messages
 2. Verify your Clerk keys are correctly set
 3. Make sure the development server is running on port 3000
+4. Ensure your Gemini API key is valid
